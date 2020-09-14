@@ -1,0 +1,61 @@
+- name: Disable SWAP since kubernetes can't work with swap enabled (1/2)
+  shell: |
+    swapoff -a
+
+- name: Disable SWAP in fstab since kubernetes can't work with swap enabled (2/2)
+  replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+    replace: '# \1'
+
+- name: Install prereq packages
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - conntrack-tools
+      - socat
+      - tc
+      - iptables
+
+- name: Template a kubelet service to /usr/lib/systemd/system/kubelet.service
+  template:
+    src: kubelet.service.j2
+    dest: /usr/lib/systemd/system/kubelet.service
+    mode: '0644'
+
+- name: Enable and start kubelet
+  systemd:
+    name: kubelet
+    state: restarted
+    enabled: yes
+
+- name: kubeadm init
+  command: "kubeadm init --apiserver-bind-port={{ apiserver_port }} --apiserver-cert-extra-sans {{ extra_cert }} --pod-network-cidr=172.20.0.0/16 --kubernetes-version {{ release_marker }} --token {{ bootstrap_token }}"
+  when: node_type == "master"
+
+- name: remove taint
+  command: "kubectl taint nodes --all node-role.kubernetes.io/master-"
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  when: node_type == "master"
+
+- name: Get the kubeadm join command from the Kubernetes master.
+  command: kubeadm token create --print-join-command
+  changed_when: false
+  when: node_type == "master"
+  register: kubernetes_join_command_result
+
+- name: Set the kubeadm join command globally.
+  set_fact:
+    kubernetes_join_command: >
+      {{ kubernetes_join_command_result.stdout }}
+  when: kubernetes_join_command_result.stdout is defined
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  with_items: "{{ groups['all'] }}"
+
+- name: kubeadm join
+  command: "{{ kubernetes_join_command }}"
+  when: node_type == "worker"

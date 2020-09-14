@@ -1,0 +1,13 @@
+- name: Install docker and k8s
+  hosts:
+    - masters
+    - workers
+  roles:
+    - install-docker
+    - download-k8s
+    - install-k8s
+
+- name: Install networking - calico
+  hosts: masters
+  roles:
+    - install-calico

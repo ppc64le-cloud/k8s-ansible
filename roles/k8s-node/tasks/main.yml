@@ -1,0 +1,8 @@
+- name: Disable SELinux
+  selinux:
+    state: disabled
+
+- name: Run the node-e2e tests
+  command: ginkgo --focus="\[NodeConformance\]" --skip="\[Flaky\]|\[Slow\]|\[Serial\]" --nodes=8 /usr/local/bin/e2e_node.test -- --k8s-bin-dir /usr/local/bin --test.timeout=1h5m0s --kubelet-flags="--cgroups-per-qos=true --cgroup-root=/ --cgroup-driver={{ cgroup_driver }}"
+  args:
+    chdir: /tmp

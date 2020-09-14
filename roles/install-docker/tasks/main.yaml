@@ -1,0 +1,52 @@
+- name: Install the docker from a remote repo
+  yum:
+    name:
+      - https://oplab9.parqtec.unicamp.br/pub/ppc64el/docker/version-19.03.8/centos/docker-ce-19.03.8-3.el7.ppc64le.rpm
+      - https://oplab9.parqtec.unicamp.br/pub/ppc64el/docker/version-19.03.8/centos/docker-ce-cli-19.03.8-3.el7.ppc64le.rpm
+      - https://dl.fedoraproject.org/pub/epel/7/ppc64le/Packages/c/containerd-1.2.4-1.el7.ppc64le.rpm
+    state: present
+
+- name: Create a /etc/docker dir
+  file:
+    path: /etc/docker
+    state: directory
+    mode: '0755'
+
+- name: Template a docker config to /etc/docker/daemon.json
+  template:
+    src: daemon.j2
+    dest: /etc/docker/daemon.json
+    mode: '0644'
+
+- name: Enable and start docker
+  systemd:
+    name: docker
+    state: restarted
+    enabled: yes
+
+- name: Flush the iptable rules
+  shell: |
+    iptables -P INPUT ACCEPT
+    iptables -P FORWARD ACCEPT
+    iptables -P OUTPUT ACCEPT
+
+    # Flush All Iptables Chains/Firewall rules #
+    iptables -F
+
+    # Delete all Iptables Chains #
+    iptables -X
+
+    # Flush all counters too #
+    iptables -Z
+    # Flush and delete all nat and  mangle #
+    iptables -t nat -F
+    iptables -t nat -X
+    iptables -t mangle -F
+    iptables -t mangle -X
+    iptables -t raw -F
+    iptables -t raw -X
+
+- name: Restart docker
+  systemd:
+    name: docker
+    state: restarted

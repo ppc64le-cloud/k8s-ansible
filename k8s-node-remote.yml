@@ -1,0 +1,7 @@
+- name: k8s node test
+  hosts:
+    - masters
+  roles:
+    - install-docker
+    - download-k8s
+    - k8s-node

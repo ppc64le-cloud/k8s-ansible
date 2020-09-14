@@ -1,0 +1,16 @@
+- name: Download calico manifest
+  get_url:
+    url: https://docs.projectcalico.org/manifests/calico.yaml
+    dest: /tmp/calico.yaml
+    mode: '0755'
+
+- name: Set veth_mtu
+  replace:
+    path: /tmp/calico.yaml
+    regexp: 'veth_mtu\:.*'
+    replace: 'veth_mtu: "{{ calico_mtu }}"'
+
+- name: kubectl
+  command: kubectl create -f /tmp/calico.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
