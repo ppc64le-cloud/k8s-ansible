@@ -35,6 +35,24 @@
   command: "kubeadm init --apiserver-bind-port={{ apiserver_port }} --apiserver-cert-extra-sans {{ extra_cert }} --pod-network-cidr=172.20.0.0/16 --kubernetes-version {{ release_marker }} --token {{ bootstrap_token }}"
   when: node_type == "master"
 
+- name: Create a directory ${HOME}/.kube if it does not exist
+  file:
+    path: ${HOME}/.kube/
+    state: directory
+    mode: '0755'
+
+- name: Copy the /etc/kubernetes/admin.conf to ${HOME}/.kube/config
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: ${HOME}/.kube/config
+    remote_src: yes
+
+- name: Copy the /etc/kubernetes/admin.conf to local machine(path - {{ kubeconfig_path }})
+  fetch:
+    src: /etc/kubernetes/admin.conf
+    dest: "{{ kubeconfig_path }}"
+    flat: yes
+
 - name: remove taint
   command: "kubectl taint nodes --all node-role.kubernetes.io/master-"
   environment:

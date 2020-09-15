@@ -3,6 +3,9 @@ ansible_connection: ssh
 ansible_user: root
 ansible_ssh_extra_args: '-o StrictHostKeyChecking=no'
 
+# kubeconfig on the local machine where kubeconfig content will be copied from the remote machine
+kubeconfig_path: kubeconfig
+
 cgroup_driver: systemd
 MTU: 9000
 
