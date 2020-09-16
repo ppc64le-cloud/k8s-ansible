@@ -5,6 +5,7 @@
       - https://oplab9.parqtec.unicamp.br/pub/ppc64el/docker/version-19.03.8/centos/docker-ce-cli-19.03.8-3.el7.ppc64le.rpm
       - https://dl.fedoraproject.org/pub/epel/7/ppc64le/Packages/c/containerd-1.2.4-1.el7.ppc64le.rpm
     state: present
+    disable_gpg_check: True
 
 - name: Create a /etc/docker dir
   file:
