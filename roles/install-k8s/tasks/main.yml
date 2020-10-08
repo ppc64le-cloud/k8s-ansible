@@ -46,12 +46,14 @@
     src: /etc/kubernetes/admin.conf
     dest: ${HOME}/.kube/config
     remote_src: yes
+  when: node_type == "master"
 
 - name: Copy the /etc/kubernetes/admin.conf to local machine(path - {{ kubeconfig_path }})
   fetch:
     src: /etc/kubernetes/admin.conf
     dest: "{{ kubeconfig_path }}"
     flat: yes
+  when: node_type == "master"
 
 - name: remove taint
   command: "kubectl taint nodes --all node-role.kubernetes.io/master-"
