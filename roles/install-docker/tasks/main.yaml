@@ -1,11 +1,17 @@
-- name: Install the docker from a remote repo
+- name: Add OpenPower repository
+  yum_repository:
+    name: open-power
+    description: Unicamp OpenPower Lab
+    baseurl: https://oplab9.parqtec.unicamp.br/pub/repository/rpm/
+    gpgcheck: no
+
+- name: Install Docker
   yum:
     name:
-      - https://oplab9.parqtec.unicamp.br/pub/ppc64el/docker/version-19.03.8/centos/docker-ce-19.03.8-3.el7.ppc64le.rpm
-      - https://oplab9.parqtec.unicamp.br/pub/ppc64el/docker/version-19.03.8/centos/docker-ce-cli-19.03.8-3.el7.ppc64le.rpm
-      - https://dl.fedoraproject.org/pub/epel/7/ppc64le/Packages/c/containerd-1.2.4-1.el7.ppc64le.rpm
+      - docker-ce
+      - docker-ce-cli
     state: present
-    disable_gpg_check: True
+    disable_gpg_check: true
 
 - name: Create a /etc/docker dir
   file:
