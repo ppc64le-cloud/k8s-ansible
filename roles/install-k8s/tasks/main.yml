@@ -33,6 +33,10 @@
 
 - name: kubeadm init
   command: "kubeadm init --apiserver-bind-port={{ apiserver_port }} --apiserver-cert-extra-sans {{ extra_cert }} --pod-network-cidr=172.20.0.0/16 --kubernetes-version {{ release_marker }} --token {{ bootstrap_token }}"
+  retries: 3
+  delay: 3
+  register: result
+  until: result.rc == 0
   when: node_type == "master"
 
 - name: Create a directory ${HOME}/.kube if it does not exist
