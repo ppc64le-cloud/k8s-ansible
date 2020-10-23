@@ -9,4 +9,7 @@
   "overlay2.override_kernel_check=true"
 ],
 "mtu": {{ MTU }}
+{% if (registry_mirrors is defined) and registry_mirrors -%},
+"registry-mirrors": [ {{ registry_mirrors|map("to_json")|join(", ") }} ]
+{% endif %}
 }

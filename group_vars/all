@@ -11,6 +11,9 @@ kubeconfig_path: kubeconfig
 
 cgroup_driver: systemd
 MTU: 9000
+# additional docker mirrors to avoid the flood to the hub.docker.com
+registry_mirrors:
+  - https://mirror.gcr.io
 
 # used for kubeadm init
 apiserver_port: 992
