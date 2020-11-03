@@ -1,0 +1,23 @@
+---
+- name: Common Prerequisites
+  block:
+    - name: Install crictl
+      unarchive:
+        src: "https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.19.0/crictl-v1.19.0-linux-ppc64le.tar.gz"
+        dest: "/usr/local/bin/"
+        remote_src: yes
+
+    - name: Add OpenPower repository
+      yum_repository:
+        name: open-power
+        description: Unicamp OpenPower Lab
+        baseurl: https://oplab9.parqtec.unicamp.br/pub/repository/rpm/
+        gpgcheck: no
+
+- name: Install and Configure Runtime - Docker
+  import_tasks: docker.yaml
+  when: runtime == "docker"
+
+- name: Install and Configure Runtime - Containerd
+  import_tasks: containerd.yaml
+  when: runtime == "containerd"

@@ -31,12 +31,14 @@
     state: restarted
     enabled: yes
 
+- name: Generate kubeadm.yaml
+  template:
+    src: kubeadm.yaml.j2
+    dest: /root/kubeadm.yaml
+    mode: '0644'
+
 - name: kubeadm init
-  command: "kubeadm init --apiserver-bind-port={{ apiserver_port }} --apiserver-cert-extra-sans {{ extra_cert }} --pod-network-cidr=172.20.0.0/16 --kubernetes-version {{ release_marker }} --token {{ bootstrap_token }}"
-  retries: 3
-  delay: 3
-  register: result
-  until: result.rc == 0
+  command: "kubeadm init --config /root/kubeadm.yaml"
   when: node_type == "master"
 
 - name: Create a directory ${HOME}/.kube if it does not exist
@@ -81,5 +83,5 @@
   with_items: "{{ groups['all'] }}"
 
 - name: kubeadm join
-  command: "{{ kubernetes_join_command }}"
+  command: "{{ kubernetes_join_command }} {% if (runtime is defined) and 'containerd' == runtime %}--cri-socket /run/containerd/containerd.sock{% endif %}"
   when: node_type == "worker"

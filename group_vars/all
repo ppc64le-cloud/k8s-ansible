@@ -9,13 +9,17 @@ ssh_private_key: "~/.ssh/id_rsa"
 # kubeconfig on the local machine where kubeconfig content will be copied from the remote machine
 kubeconfig_path: kubeconfig
 
+##### Runtime Configurations #####
+# valid runtimes: docker, containerd
+runtime: docker
 cgroup_driver: systemd
 MTU: 9000
 # additional docker mirrors to avoid the flood to the hub.docker.com
 registry_mirrors:
   - https://mirror.gcr.io
+  - https://registry-1.docker.io
 
-# used for kubeadm init
+##### Kubernetes Configurations #####
 apiserver_port: 992
 cluster_name: "k8s-cluster-1"
 powervs_dns_zone: "k8s.test"
