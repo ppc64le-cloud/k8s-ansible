@@ -1,0 +1,57 @@
+---
+- name: Install containerd
+  yum:
+    name:
+      - containerd
+      - device-mapper-persistent-data
+      - lvm2
+    state: present
+    disable_gpg_check: true
+
+- name: Load kernel modules
+  modprobe:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - overlay
+    - br_netfilter
+
+- name: Sysctl settings
+  sysctl:
+      name: "{{ item }}"
+      sysctl_file: /etc/sysctl.d/99-kubernetes-cri.conf
+      value: 1
+      state: present
+      reload: yes
+  with_items:
+    - net.bridge.bridge-nf-call-iptables
+    - net.ipv4.ip_forward
+    - net.bridge.bridge-nf-call-ip6tables
+
+- name: Create a /etc/containerd dir
+  file:
+    path: /etc/containerd
+    state: directory
+    mode: '0755'
+
+- name: Generate /etc/containerd/config.toml
+  template:
+    src: containerd/config.toml.j2
+    dest: /etc/containerd/config.toml
+    mode: '0644'
+
+- name: Create a /etc/systemd/system/kubelet.service.d dir
+  file:
+    path: /etc/systemd/system/kubelet.service.d
+    state: directory
+    mode: '0755'
+
+- name: Create containerd drop-in file for kubelet service
+  copy:
+    src: containerd/dropin.conf
+    dest: /etc/systemd/system/kubelet.service.d/00-containerd-dropin.conf
+
+- name: Restart containerd
+  systemd:
+    name: containerd
+    state: restarted

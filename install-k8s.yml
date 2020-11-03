@@ -1,9 +1,9 @@
-- name: Install docker and k8s
+- name: Install Runtime and Kubernetes
   hosts:
     - masters
     - workers
   roles:
-    - install-docker
+    - runtime
     - download-k8s
     - install-k8s
 

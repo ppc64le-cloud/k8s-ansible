@@ -21,7 +21,7 @@
 
 - name: Template a docker config to /etc/docker/daemon.json
   template:
-    src: daemon.j2
+    src: docker/daemon.j2
     dest: /etc/docker/daemon.json
     mode: '0644'
 
@@ -30,6 +30,17 @@
     name: docker
     state: restarted
     enabled: yes
+
+- name: Create a /etc/systemd/system/kubelet.service.d dir
+  file:
+    path: /etc/systemd/system/kubelet.service.d
+    state: directory
+    mode: '0755'
+
+- name: Create docker drop-in file for kubelet service
+  copy:
+    src: docker/dropin.conf
+    dest: /etc/systemd/system/kubelet.service.d/00-docker-dropin.conf
 
 - name: Flush the iptable rules
   shell: |
