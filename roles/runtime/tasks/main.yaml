@@ -14,6 +14,10 @@
         baseurl: https://oplab9.parqtec.unicamp.br/pub/repository/rpm/
         gpgcheck: no
 
+    - name: Install iptables
+      yum:
+        name: iptables
+
 - name: Install and Configure Runtime - Docker
   import_tasks: docker.yaml
   when: runtime == "docker"
