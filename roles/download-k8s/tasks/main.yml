@@ -9,3 +9,5 @@
     - kubernetes-test-linux-ppc64le.tar.gz
     - kubernetes-client-linux-ppc64le.tar.gz
     - kubernetes-server-linux-ppc64le.tar.gz
+  retries: 3
+  delay: 5
