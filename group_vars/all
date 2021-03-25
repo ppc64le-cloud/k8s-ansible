@@ -6,6 +6,10 @@ ansible_ssh_private_key_file: "{{ ssh_private_key }}"
 
 ssh_private_key: "~/.ssh/id_rsa"
 
+#Redhat Subscription with username and password
+username: <username>
+password: <password>
+
 # kubeconfig on the local machine where kubeconfig content will be copied from the remote machine
 kubeconfig_path: kubeconfig
 
