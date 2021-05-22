@@ -28,7 +28,10 @@ apiServer:
   timeoutForControlPlane: 4m0s
 {% if (extra_cert is defined) and extra_cert %}
   certSANs:
-    - {{ extra_cert }}
+{% set list1 = extra_cert.split(',') %}
+{% for item in list1 %}
+    - {{ item }}
+{% endfor %}
 {% endif %}
 ---
 apiVersion: kubelet.config.k8s.io/v1beta1
