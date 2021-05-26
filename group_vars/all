@@ -31,6 +31,7 @@ extra_cert: "{{ cluster_name }}-master.{{ powervs_dns_zone }}"
 # https://github.com/kubernetes/kubernetes/blob/66334f02e8c520df7973c397246da82cd4db2769/cmd/kubeadm/app/util/version_test.go#L193:L199 for more information
 release_marker: ci/latest
 bootstrap_token: abcdef.0123456789abcdef
+kubelet_service_file: "kubelet.service.j2"
 
 # in the format of: https://storage.googleapis.com/{{ bucket }}/{{ directory }}/{{ build_version }}/kubernetes-client-linux-ppc64le.tar.gz
 # used for downloading the kubernetes bits

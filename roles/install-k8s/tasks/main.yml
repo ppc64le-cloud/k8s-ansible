@@ -21,9 +21,11 @@
 
 - name: Template a kubelet service to /usr/lib/systemd/system/kubelet.service
   template:
-    src: kubelet.service.j2
+    src: "{{ kubelet_service_file }}"
     dest: /usr/lib/systemd/system/kubelet.service
     mode: '0644'
+  vars:
+    kubelet_service_file: "{{ kubelet_service }}"
 
 - name: Enable and start kubelet
   systemd:
