@@ -8,7 +8,7 @@ After=network-online.target
 Environment="KUBELET_CONFIG_ARGS=--config=/var/lib/kubelet/config.yaml"
 Environment="KUBELET_KUBECONFIG_ARGS=--bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --kubeconfig=/etc/kubernetes/kubelet.conf"
 Environment="KUBELET_KUBEADM_ARGS=--cgroup-driver={{ cgroup_driver }} --network-plugin=cni"
-ExecStart=/usr/local/bin/kubelet $KUBELET_KUBECONFIG_ARGS $KUBELET_CONFIG_ARGS $KUBELET_KUBEADM_ARGS $KUBELET_EXTRA_ARGS
+ExecStart=/usr/local/bin/kubelet $KUBELET_KUBECONFIG_ARGS $KUBELET_CONFIG_ARGS $KUBELET_KUBEADM_ARGS {{ KUBELET_EXTRA_ARGS }}
 Restart=always
 StartLimitInterval=0
 RestartSec=10
