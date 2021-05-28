@@ -24,6 +24,8 @@
     src: kubelet.service.j2
     dest: /usr/lib/systemd/system/kubelet.service
     mode: '0644'
+  vars:
+    KUBELET_EXTRA_ARGS: "{{ lookup('env','KUBELET_EXTRA_ARGS') | default('', True) }}"
 
 - name: Enable and start kubelet
   systemd:
