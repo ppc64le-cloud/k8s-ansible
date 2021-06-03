@@ -24,8 +24,6 @@
     src: kubelet.service.j2
     dest: /usr/lib/systemd/system/kubelet.service
     mode: '0644'
-  vars:
-    KUBELET_EXTRA_ARGS: "{{ lookup('env','KUBELET_EXTRA_ARGS') | default('', True) }}"
 
 - name: Enable and start kubelet
   systemd:
@@ -67,7 +65,7 @@
   command: "kubectl taint nodes --all node-role.kubernetes.io/master-"
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
-  when: node_type == "master"
+  when: node_type == "master" and "{{ groups['workers'] | length }}" == 0
 
 - name: Get the kubeadm join command from the Kubernetes master.
   command: kubeadm token create --print-join-command
