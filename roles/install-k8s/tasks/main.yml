@@ -65,7 +65,7 @@
   command: "kubectl taint nodes --all node-role.kubernetes.io/master-"
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
-  when: node_type == "master"
+  when: node_type == "master" and not ('workers' in groups and groups['workers'])
 
 - name: Get the kubeadm join command from the Kubernetes master.
   command: kubeadm token create --print-join-command
