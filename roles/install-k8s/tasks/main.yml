@@ -8,6 +8,11 @@
     regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
     replace: '# \1'
 
+# PowerVS has default domainname set as .power-iaas.cloud.ibm.com which is not present in the cloud
+- name: Remove domainname from the hostname
+  shell: |
+    hostnamectl set-hostname $(hostname | cut -d "." -f1)
+
 - name: Install prereq packages
   yum:
     name: "{{ packages }}"
