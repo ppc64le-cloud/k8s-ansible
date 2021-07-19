@@ -1,0 +1,4 @@
+- name: cordon master node
+  command: "kubectl get node --selector='node-role.kubernetes.io/master' --no-headers | awk '{print $1}' | xargs kubectl cordon"
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
