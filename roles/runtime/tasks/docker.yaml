@@ -1,10 +1,3 @@
-- name: Add OpenPower repository
-  yum_repository:
-    name: open-power
-    description: Unicamp OpenPower Lab
-    baseurl: https://oplab9.parqtec.unicamp.br/pub/repository/rpm/
-    gpgcheck: no
-
 - name: Install Docker
   yum:
     name:
