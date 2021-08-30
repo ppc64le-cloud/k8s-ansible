@@ -1,14 +1,8 @@
-- name: Install prereq wget
-  yum:
-    name: wget
-    state: present
-
 - name: Download calico manifest
-  shell: |
-    wget --limit-rate 1k https://docs.projectcalico.org/manifests/calico.yaml -O /tmp/calico.yaml
-    chmod 0755 /tmp/calico.yaml
-  args:
-    warn: false
+  get_url:
+    url: https://docs.projectcalico.org/manifests/calico.yaml
+    dest: /tmp/calico.yaml
+    mode: '0755'
 
 - name: Set veth_mtu
   replace:
