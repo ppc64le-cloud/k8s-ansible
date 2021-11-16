@@ -1,6 +1,6 @@
 - name: Download calico manifest
   get_url:
-    url: https://docs.projectcalico.org/manifests/calico.yaml
+    url: https://docs.projectcalico.org/archive/v3.20/manifests/calico.yaml
     dest: /tmp/calico.yaml
     mode: '0755'
 
