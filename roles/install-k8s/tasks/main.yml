@@ -21,7 +21,7 @@
     packages:
       - conntrack-tools
       - socat
-      - tc
+      - iproute-tc
       - iptables
 
 - name: Template a kubelet service to /usr/lib/systemd/system/kubelet.service
