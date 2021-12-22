@@ -4,5 +4,6 @@
   "directory": "release",
   "build_version": "v1.19.2",
   "release_marker": "release/v1.19.2",
-  "extra_cert": "169.48.19.202"
+  "extra_cert": "169.48.19.202",
+  "runtime": "docker"
 }
