@@ -1,4 +1,4 @@
-apiVersion: kubeadm.k8s.io/v1beta2
+apiVersion: kubeadm.k8s.io/v1beta3
 kind: InitConfiguration
 bootstrapTokens:
 - groups:
@@ -12,12 +12,12 @@ localAPIEndpoint:
   bindPort: {{ apiserver_port }}
 nodeRegistration:
 {% if (runtime is defined) and 'containerd' == runtime %}
-  criSocket: /run/containerd/containerd.sock
+  criSocket: "unix:///run/containerd/containerd.sock"
 {% endif %}
   kubeletExtraArgs:
     cgroup-driver: {{ cgroup_driver }}
 ---
-apiVersion: kubeadm.k8s.io/v1beta2
+apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
 networking:
   serviceSubnet: "10.96.0.0/12"
@@ -38,7 +38,7 @@ apiVersion: kubelet.config.k8s.io/v1beta1
 kind: KubeletConfiguration
 cgroupDriver: {{ cgroup_driver }}
 ---
-apiVersion: kubeadm.k8s.io/v1beta2
+apiVersion: kubeadm.k8s.io/v1beta3
 caCertPath: /etc/kubernetes/pki/ca.crt
 discovery:
   bootstrapToken:
@@ -49,5 +49,5 @@ discovery:
 kind: JoinConfiguration
 nodeRegistration:
 {% if (runtime is defined) and 'containerd' == runtime %}
-  criSocket: /run/containerd/containerd.sock
+  criSocket: "unix:///run/containerd/containerd.sock"
 {% endif %}
