@@ -1,5 +1,5 @@
 - name: cordon master node
   shell:
-     "kubectl get node --selector='node-role.kubernetes.io/master' --no-headers | awk '{print $1}' | xargs kubectl cordon"
+     "kubectl get node --selector='node-role.kubernetes.io/control-plane' --no-headers | awk '{print $1}' | xargs kubectl cordon"
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
