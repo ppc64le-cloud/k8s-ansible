@@ -51,7 +51,8 @@
     src: containerd/dropin.conf
     dest: /etc/systemd/system/kubelet.service.d/00-containerd-dropin.conf
 
-- name: Restart containerd
+- name: Enable and Restart containerd
   systemd:
     name: containerd
     state: restarted
+    enabled: yes
