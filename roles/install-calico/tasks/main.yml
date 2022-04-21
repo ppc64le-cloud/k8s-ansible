@@ -1,6 +1,6 @@
-- name: Download calico manifest
-  get_url:
-    url: https://docs.projectcalico.org/manifests/calico.yaml
+- name: Copy calico manifest
+  copy:
+    src: calico.yaml
     dest: /tmp/calico.yaml
     mode: '0755'
 
