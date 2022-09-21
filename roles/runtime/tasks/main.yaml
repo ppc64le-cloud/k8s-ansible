@@ -14,7 +14,7 @@
   block:
     - name: Install crictl
       unarchive:
-        src: "https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.21.0/crictl-v1.21.0-linux-ppc64le.tar.gz"
+        src: "https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.24.2/crictl-v1.24.2-linux-ppc64le.tar.gz"
         dest: "/usr/local/bin/"
         remote_src: yes
 
