@@ -10,6 +10,35 @@
       shell: subscription-manager register --username {{ username }} --password {{ password }} --auto-attach
       when:  ansible_distribution == "RedHat"
 
+- name: Forwarding IPv4 and letting iptables see bridged traffic
+  block:
+    - name: Loading Modules Boot Time
+      copy:
+        dest: "/etc/modules-load.d/k8s.conf"
+        content: |
+          overlay
+          br_netfilter
+
+    - name: Load kernel modules First time
+      modprobe:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - overlay
+        - br_netfilter
+
+    - name: Sysctl settings
+      sysctl:
+        name: "{{ item }}"
+        sysctl_file: /etc/sysctl.d/k8s.conf
+        value: 1
+        state: present
+        reload: yes
+      with_items:
+        - net.bridge.bridge-nf-call-iptables
+        - net.bridge.bridge-nf-call-ip6tables
+        - net.ipv4.ip_forward
+
 - name: Common Prerequisites
   block:
     - name: Install crictl
