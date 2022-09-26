@@ -33,6 +33,14 @@ apiServer:
     - {{ item }}
 {% endfor %}
 {% endif %}
+# The default bind address for the controllerManager and the Scheduler is set to 127.0.0.1
+# To access the /metrics endpoint on kube-scheduler, the bind address is set to 0.0.0.0
+controllerManager:
+  extraArgs:
+    bind-address: "0.0.0.0"
+scheduler:
+  extraArgs:
+    bind-address: "0.0.0.0"
 ---
 apiVersion: kubelet.config.k8s.io/v1beta1
 kind: KubeletConfiguration
