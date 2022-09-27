@@ -14,6 +14,3 @@
 # Hold-off from executing tests until all nodes in cluster are Ready
 - name: Wait for nodes to transistion to Ready state
   shell: kubectl wait --for=condition=Ready nodes --all --timeout=600s
-  register: nodes_ready
-
-- debug: var=nodes_ready.stdout_lines
