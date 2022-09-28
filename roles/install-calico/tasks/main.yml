@@ -10,7 +10,7 @@
     regexp: 'veth_mtu\:.*'
     replace: 'veth_mtu: "{{ calico_mtu }}"'
 
-- name: kubectl
+- name: Set up Calico CNI from manifest
   command: kubectl create -f /tmp/calico.yaml
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
