@@ -1,10 +1,29 @@
-# k8s-ansible
+# k8s-ansible : Ansible utility to deploy alpha/release version Kubernetes clusters.
 
-#How to use
+#### Deploying a stable Kubernetes cluster
 
-## Deploy a stable k8 cluster
+##### Method 1: Update fields in both hosts.yml and extra-vars-k8s.json to deploy cluster
 
+Modify the host entry in the examples/containerd-cluster/hosts.yml and modify extra_cert in examples/containerd-cluster/extra-vars-k8s.json
 ```shell script
-# modify the host entry in the examples/containerd-cluster/hosts.yaml and modify extra_cert in examples/containerd-cluster/extra-vars-k8s-stable.json 
-$ ansible-playbook -i examples/containerd-cluster/hosts.yml install-k8s.yml --extra-vars "@examples/containerd-cluster/extra-vars-k8s-stable.json"
+ansible-playbook -i examples/containerd-cluster/hosts.yml install-k8s.yml --extra-vars "@examples/containerd-cluster/extra-vars-k8s.json"
+```
+
+##### Method 2: Deploy using hack/k8s-installer.sh for alpha/release Kubernetes installation
+The k8s-installer.sh utility under hack, provides an option to choose between the latest release or the alpha version of Kubernetes to be deployed on VMs.
+###### Example usages:
+```shell
+./hack/k8s-installer.sh -c X.X.X.X -w Y.Y.Y.Y -p <playbook to use> -a|-r -y
+```
+To deploy latest Alpha release of k8s:
+```shell
+./hack/k8s-installer.sh -w X.X.X.X -c Y.Y.Y.Y -a -y
+```
+To deploy latest Stable release of k8s:
+```shell
+./hack/k8s-installer.sh -w X.X.X.X -c Y.Y.Y.Y -r -y
+```
+To deploy latest Stable release of k8s for perf-tests:
+```shell
+./hack/k8s-installer.sh -p install-k8s-perf.yml -w X.X.X.X -c Y.Y.Y.Y -r -y
 ```
