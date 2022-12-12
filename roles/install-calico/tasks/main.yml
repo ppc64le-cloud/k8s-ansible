@@ -1,4 +1,4 @@
-- name: Download calico manifest
+- name: Download calico manifest - {{ calico_version }}
   get_url:
     url: "https://raw.githubusercontent.com/projectcalico/calico/{{ calico_version }}/manifests/calico.yaml"
     dest: /tmp/calico.yaml

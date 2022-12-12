@@ -14,6 +14,8 @@ password: <password>
 kubeconfig_path: kubeconfig
 
 ##### Runtime Configurations #####
+# cri-tools version
+crictl_verison: v1.25.0
 # valid runtimes: containerd
 runtime: containerd
 # Docker runtime is deprecated after k8s v1.20 - https://kubernetes.io/blog/2020/12/02/dont-panic-kubernetes-and-docker/

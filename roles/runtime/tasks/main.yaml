@@ -41,9 +41,9 @@
 
 - name: Common Prerequisites
   block:
-    - name: Install crictl
+    - name: Install crictl - {{ crictl_verison }}
       unarchive:
-        src: "https://github.com/kubernetes-sigs/cri-tools/releases/download/v1.24.2/crictl-v1.24.2-linux-ppc64le.tar.gz"
+        src: "https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ crictl_verison }}/crictl-{{ crictl_verison }}-linux-ppc64le.tar.gz"
         dest: "/usr/local/bin/"
         remote_src: yes
 
