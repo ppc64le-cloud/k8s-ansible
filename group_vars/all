@@ -33,6 +33,7 @@ registry_mirrors:
 apiserver_port: 992
 cluster_name: "k8s-cluster-1"
 powervs_dns_zone: "k8s.test"
+pod_subnet: 172.20.0.0/16
 extra_cert: "{{ cluster_name }}-master.{{ powervs_dns_zone }}"
 # https://github.com/kubernetes/kubernetes/blob/66334f02e8c520df7973c397246da82cd4db2769/cmd/kubeadm/app/util/version_test.go#L193:L199 for more information
 release_marker: ci/latest
@@ -56,4 +57,7 @@ build_version: v1.20.0-alpha.0.1402+d39214ade1d60c
 # build_version: d39214ade1d60c
 
 ##### Calico Configurations #####
-calico_version: v3.24.1
+calico_version: v3.24.5
+# The available methods of installation for Calico can be either using the tigera operator, or using the manifest.
+# Choose between "operator" or "manifest" (default) for the desired installation method.
+calico_installation_type: manifest

@@ -1,0 +1,38 @@
+- name: Set up Calico - {{ calico_version }} using tigera operator.
+  command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/{{ calico_version }}/manifests/tigera-operator.yaml
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+
+- name: Download Calico custom-resource manifest.
+  get_url:
+    url: "https://raw.githubusercontent.com/projectcalico/calico/{{ calico_version }}/manifests/custom-resources.yaml"
+    dest: /tmp/calico.yaml
+    mode: '0755'
+
+# Guide to set v-eth mtu for calico - https://projectcalico.docs.tigera.io/networking/mtu
+# TODO: Identify a safer way to make changes to .yaml file.
+- name: Set veth_mtu to {{ calico_mtu }}
+  lineinfile:
+    path: /tmp/calico.yaml
+    insertafter: "calicoNetwork:"
+    line: "    mtu: {{ calico_mtu }}"
+
+- name: Update CIDR for PodSubnet to {{ pod_subnet }}
+  replace:
+    path: /tmp/calico.yaml
+    regexp: "cidr:.*"
+    replace: "cidr: {{ pod_subnet }}"
+
+- name: Set up Calico CNI from manifest
+  command: kubectl create -f /tmp/calico.yaml
+
+# TODO: Switch to suitable logic when - https://github.com/kubernetes/kubernetes/issues/83242 is fixed.
+- name: Wait until namespace is created for calico-apiserver.
+  command: kubectl get namespace calico-apiserver
+  register: result
+  until: result.stdout.find("Active") != -1
+  retries: 18
+  delay: 5
+
+- name: Wait for tigera operator to set up calico api-server.
+  command: kubectl rollout status deployment calico-apiserver -n calico-apiserver --timeout=60s
