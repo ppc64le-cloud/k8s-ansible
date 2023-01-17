@@ -1,16 +1,8 @@
-- name: Download calico manifest - {{ calico_version }}
-  get_url:
-    url: "https://raw.githubusercontent.com/projectcalico/calico/{{ calico_version }}/manifests/calico.yaml"
-    dest: /tmp/calico.yaml
-    mode: '0755'
+- name: Install Calico using manifest.
+  import_tasks: calico-manifest.yaml
+  when: calico_installation_type == "manifest"
 
-- name: Set veth_mtu
-  replace:
-    path: /tmp/calico.yaml
-    regexp: 'veth_mtu\:.*'
-    replace: 'veth_mtu: "{{ calico_mtu }}"'
+- name: Install Calico using tigera operator.
+  import_tasks: calico-operator.yaml
+  when: calico_installation_type == "operator"
 
-- name: Set up Calico CNI from manifest
-  command: kubectl create -f /tmp/calico.yaml
-  environment:
-    KUBECONFIG: /etc/kubernetes/admin.conf
