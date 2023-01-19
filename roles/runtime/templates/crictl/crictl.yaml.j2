@@ -1,0 +1,11 @@
+{% set containerd_sock = 'unix:///run/containerd/containerd.sock' %}
+{% set dockershim_sock = 'unix:///var/run/dockershim.sock' %}
+{% if 'containerd' == runtime %}
+runtime-endpoint: {{ containerd_sock }}
+image-endpoint: {{ containerd_sock }}
+{% else %}
+runtime-endpoint: {{ dockershim_sock }}
+image-endpoint: {{ dockershim_sock }}
+{% endif %}
+timeout: 2
+debug: false

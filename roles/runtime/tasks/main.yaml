@@ -41,6 +41,11 @@
 
 - name: Common Prerequisites
   block:
+    - name: Generate crictl.yaml
+      template:
+        src: crictl/crictl.yaml.j2
+        dest: /etc/crictl.yaml
+        mode: '0644'
     - name: Install crictl - {{ critools_version }}
       unarchive:
         src: "https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ critools_version }}/crictl-{{ critools_version }}-linux-ppc64le.tar.gz"
