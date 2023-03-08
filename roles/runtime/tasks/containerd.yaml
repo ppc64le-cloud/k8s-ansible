@@ -20,17 +20,6 @@
     dest: /etc/containerd/config.toml
     mode: '0644'
 
-- name: Create a /etc/systemd/system/kubelet.service.d dir
-  file:
-    path: /etc/systemd/system/kubelet.service.d
-    state: directory
-    mode: '0755'
-
-- name: Create containerd drop-in file for kubelet service
-  copy:
-    src: containerd/dropin.conf
-    dest: /etc/systemd/system/kubelet.service.d/00-containerd-dropin.conf
-
 - name: Enable and Restart containerd
   systemd:
     name: containerd
