@@ -1,3 +1,11 @@
+# The Nodeport Services displayed a failure while network packets cross the default
+# network interface on ppc64le-https://jsw.ibm.com/browse/POWERCLOUD-16
+# This workaround fixed above failure.
+# Follow up task to remove this in future https://jsw.ibm.com/browse/POWERCLOUD-34
+- name: Disable tx-checksumming on default network interface
+  command: ethtool --offload {{ ansible_default_ipv4['interface'] }} tx-checksumming off
+  when: ansible_default_ipv4['interface'] is defined
+
 - name: Disable SWAP since kubernetes can't work with swap enabled (1/2)
   shell: |
     swapoff -a
