@@ -1,0 +1,49 @@
+---
+- name: Install CRI-O and dependencies.
+  yum:
+    name:
+      - conmon
+      - runc
+    state: present
+    disable_gpg_check: true
+
+# TODO: Add support to generate a nix-build for ppc64le or add actions to generate a binary for cri-o
+- name: Download CRI-O.
+  unarchive:
+    src: "https://github.com/ppc64le-cloud/crio/raw/main/crio-1.26.tar.gz"
+    dest: "/usr/local/bin/"
+    remote_src: yes
+    extra_opts:
+      - --strip-components=1
+  retries: 3
+  delay: 5
+
+- name: Create /etc/containers dir.
+  file:
+    path: /etc/containers
+    state: directory
+    mode: '0755'
+
+# Reference: https://github.com/containers/image/blob/main/docs/containers-policy.json.5.md
+# for policy refinement from the current "insecureAcceptAnything".
+- name: Define container pull policies on nodes.
+  copy:
+    src: crio/policy.json
+    dest: /etc/containers
+    mode: '0644'
+
+- name: Create the crio.service file on nodes.
+  copy:
+    src:  crio/crio.service
+    dest: /usr/lib/systemd/system/crio.service
+    mode: '0644'
+
+# TODO: Validate if the file needs to be created once when installations are possible.
+- name: Create /var/lib/crio/clean.shutdown file.
+  shell: mkdir -p /var/lib/crio && touch /var/lib/crio/clean.shutdown
+
+- name: Enable and Restart crio.
+  systemd:
+    name: crio
+    state: restarted
+    enabled: yes

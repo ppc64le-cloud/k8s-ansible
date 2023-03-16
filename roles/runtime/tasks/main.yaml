@@ -70,3 +70,7 @@
 - name: Install and Configure Runtime - Containerd
   import_tasks: containerd.yaml
   when: runtime == "containerd"
+
+- name: Install and Configure Runtime - CRI-O
+  import_tasks: crio.yaml
+  when: runtime == "crio"
