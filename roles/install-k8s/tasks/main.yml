@@ -41,6 +41,7 @@
 - name: Enable and start kubelet
   systemd:
     name: kubelet
+    daemon_reexec: true
     state: restarted
     enabled: yes
 
@@ -96,5 +97,5 @@
   with_items: "{{ groups['all'] }}"
 
 - name: kubeadm join
-  command: "{{ kubernetes_join_command }} {% if (runtime is defined) and 'containerd' == runtime %}--cri-socket /run/containerd/containerd.sock{% endif %}"
+  command: "{{ kubernetes_join_command }}"
   when: node_type == "worker"
