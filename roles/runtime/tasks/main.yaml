@@ -74,3 +74,8 @@
 - name: Install and Configure Runtime - CRI-O
   import_tasks: crio.yaml
   when: runtime == "crio"
+
+- name: Pre-pull sandbox-images in the test environment.
+  shell: crictl pull {{ item }}
+  with_items: "{{ prepull_images }}"
+  when: prepull_images | length > 0
