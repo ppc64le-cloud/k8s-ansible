@@ -32,6 +32,18 @@
     dest: /etc/containers
     mode: '0644'
 
+- name: Create a /etc/crio dir
+  file:
+    path: /etc/crio
+    state: directory
+    mode: '0755'
+
+- name: Generate crio.conf file
+  template:
+    src: crio/crio.conf.j2
+    dest:  /etc/crio/crio.conf
+    mode: '0644'
+
 - name: Create the crio.service file on nodes.
   copy:
     src:  crio/crio.service
