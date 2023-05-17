@@ -41,11 +41,10 @@ release_marker: ci/latest
 bootstrap_token: abcdef.0123456789abcdef
 kubelet_extra_args: ""
 
-# in the format of: https://storage.googleapis.com/{{ bucket }}/{{ directory }}/{{ build_version }}/kubernetes-client-linux-ppc64le.tar.gz
+# in the format of: https://dl.k8s.io/{{ directory }}/{{ build_version }}/kubernetes-client-linux-ppc64le.tar.gz
 # used for downloading the kubernetes bits
 # GCS web: https://gcsweb.k8s.io/gcs/kubernetes-release-dev/ci/
-s3_server: storage.googleapis.com
-bucket: k8s-release-dev
+s3_server: dl.k8s.io
 directory: ci
 build_version: v1.20.0-alpha.0.1402+d39214ade1d60c
 

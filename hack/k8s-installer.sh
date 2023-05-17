@@ -63,7 +63,6 @@ check_reachability()
 write_to_extravars()
 {
   sed -i \
-  -e "s/  \"bucket\": .*/  \"bucket\": \"$bucket\",/" \
   -e "s/  \"directory\": .*/  \"directory\": \"$directory\",/" \
   -e "s/  \"build_version\": .*/  \"build_version\": \"$version\",/" \
   -e "s/  \"release_marker\": .*/  \"release_marker\": \"$release_marker\",/" \
@@ -90,18 +89,16 @@ while getopts "ac:p:rw:y" opt; do
     a)
       alpha="true"
       echo "Fetching latest k8s Alpha CI version."
-      version=$(curl -s https://storage.googleapis.com/k8s-release-dev/ci/latest.txt)
+      version=$(curl -Ls https://dl.k8s.io/ci/latest.txt)
       release_marker="ci\/latest"
-      bucket="k8s-release-dev"
       directory="ci"
       write_to_extravars
       echo "Alpha release version to be used for cluster deployment: $version";;
     r)
       release="true"
       echo "Fetching latest k8s stable release version."
-      version=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
-      release_marker="release\/$version"
-      bucket="kubernetes-release"
+      version=$(curl -Ls https://dl.k8s.io/release/stable.txt)
+      release_marker="$version"
       directory="release"
       write_to_extravars
       echo "Stable release version to be used for cluster deployment: $version";;

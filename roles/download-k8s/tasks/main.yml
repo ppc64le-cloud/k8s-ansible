@@ -1,6 +1,6 @@
 - name: Extract the k8s bits
   unarchive:
-    src: "https://{{ s3_server }}/{{ bucket }}/{{ directory }}/{{ build_version }}/{{ item }}"
+    src: "https://{{ s3_server }}/{{ directory }}/{{ build_version }}/{{ item }}"
     dest: "/usr/local/bin/"
     remote_src: yes
     extra_opts:
