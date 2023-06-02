@@ -1,6 +1,15 @@
+- name: Generate download URL based on S3 server.
+  set_fact:
+    src_template: >-
+      {% if s3_server == 'dl.k8s.io' -%}
+        https://{{ s3_server }}/{{ directory }}/{{ build_version }}
+      {%- else -%}
+        https://{{ s3_server }}/{{ bucket }}/{{ directory }}/{{ build_version }}
+      {%- endif %}
+
 - name: Extract the k8s bits
   unarchive:
-    src: "https://{{ s3_server }}/{{ directory }}/{{ build_version }}/{{ item }}"
+    src: "{{ src_template }}/{{ item }}"
     dest: "/usr/local/bin/"
     remote_src: yes
     extra_opts:
