@@ -42,6 +42,7 @@ bootstrap_token: abcdef.0123456789abcdef
 kubelet_extra_args: ""
 
 # in the format of: https://dl.k8s.io/{{ directory }}/{{ build_version }}/kubernetes-client-linux-ppc64le.tar.gz
+# Eg: https://dl.k8s.io/ci/v1.28.0-alpha.1.48+039ae1edf5a71f/kubernetes-client-linux-ppc64le.tar.gz
 # used for downloading the kubernetes bits
 # GCS web: https://gcsweb.k8s.io/gcs/kubernetes-release-dev/ci/
 s3_server: dl.k8s.io
@@ -49,10 +50,11 @@ directory: ci
 build_version: v1.20.0-alpha.0.1402+d39214ade1d60c
 
 # For IBM s3 bucket:
-# https://s3.us-south.cloud-object-storage.appdomain.cloud/ci-builds/kubernetes/master/golang/master/d39214ade1d60c/kubernetes-client-linux-ppc64le.tar.gz
+# https://s3.us-south.cloud-object-storage.appdomain.cloud/{{ bucket }}/{{ directory }}/{{ build_version }}/kubernetes-client-linux-ppc64le.tar.gz
+# Eg: https://s3.us-south.cloud-object-storage.appdomain.cloud/ppc64le-ci-builds/kubernetes/master/golang/master/d39214ade1d60c/kubernetes-client-linux-ppc64le.tar.gz
 #
 # s3_server: s3.us-south.cloud-object-storage.appdomain.cloud
-# bucket: ci-builds
+bucket: ppc64le-ci-builds
 # directory: kubernetes/master/golang/master
 # build_version: d39214ade1d60c
 
