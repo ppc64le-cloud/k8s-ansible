@@ -52,16 +52,15 @@
         dest: "/usr/local/bin/"
         remote_src: yes
 
-    - name: Add Public Docker repository
-      yum_repository:
-        name: public-docker
-        description: Public Docker Repository
-        baseurl: https://download.docker.com/linux/centos/8/ppc64le/stable/
-        gpgcheck: no
-
     - name: Install iptables
       yum:
         name: iptables
+
+    - name: Install container runtime - runc
+      get_url:
+        url: "https://github.com/opencontainers/runc/releases/download/v{{ runc_version }}/runc.ppc64le"
+        dest: /usr/bin/runc
+        mode: '0755'
 
 - name: Install and Configure Runtime - Docker
   import_tasks: docker.yaml

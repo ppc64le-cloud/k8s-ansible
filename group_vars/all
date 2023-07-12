@@ -16,8 +16,10 @@ kubeconfig_path: kubeconfig
 ##### Runtime Configurations #####
 # cri-tools version
 critools_version: v1.26.0
+runc_version: 1.1.7
 # valid runtimes: containerd [default], crio.
 runtime: containerd
+containerd_version: 1.7.2
 pause_container_image: registry.k8s.io/pause:3.9
 # Docker runtime is deprecated after k8s v1.20 - https://kubernetes.io/blog/2020/12/02/dont-panic-kubernetes-and-docker/
 # This repo also supports installation with docker runtime as per the compatibility with k8s.
