@@ -56,6 +56,12 @@
       yum:
         name: iptables
 
+    - name: Install container runtime - runc
+      get_url:
+        url: "https://github.com/opencontainers/runc/releases/download/v{{ runc_version }}/runc.ppc64le"
+        dest: /usr/bin/runc
+        mode: '0755'
+
 - name: Install and Configure Runtime - Docker
   import_tasks: docker.yaml
   when: runtime == "docker"

@@ -4,7 +4,6 @@
     name:
       - device-mapper-persistent-data
       - lvm2
-      - runc
     state: present
     disable_gpg_check: true
 
