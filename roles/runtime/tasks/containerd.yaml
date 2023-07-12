@@ -1,12 +1,26 @@
 ---
-- name: Install containerd
+- name: Install containerd dependencies
   yum:
     name:
-      - containerd
       - device-mapper-persistent-data
       - lvm2
+      - runc
     state: present
     disable_gpg_check: true
+
+- name: Download and set up containerd.
+  unarchive:
+    src: "https://github.com/containerd/containerd/releases/download/v{{ containerd_version }}/containerd-{{ containerd_version }}-linux-ppc64le.tar.gz"
+    dest: "/usr/local"
+    remote_src: yes
+  retries: 3
+  delay: 5
+
+- name: Create the containerd.service file on nodes.
+  get_url:
+    url: "https://raw.githubusercontent.com/containerd/containerd/main/containerd.service"
+    dest: /usr/lib/systemd/system/containerd.service
+    mode: '0755'
 
 - name: Create a /etc/containerd dir
   file:

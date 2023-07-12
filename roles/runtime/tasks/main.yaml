@@ -52,13 +52,6 @@
         dest: "/usr/local/bin/"
         remote_src: yes
 
-    - name: Add Public Docker repository
-      yum_repository:
-        name: public-docker
-        description: Public Docker Repository
-        baseurl: https://download.docker.com/linux/centos/8/ppc64le/stable/
-        gpgcheck: no
-
     - name: Install iptables
       yum:
         name: iptables
