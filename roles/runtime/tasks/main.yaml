@@ -62,10 +62,6 @@
         dest: /usr/bin/runc
         mode: '0755'
 
-- name: Install and Configure Runtime - Docker
-  import_tasks: docker.yaml
-  when: runtime == "docker"
-
 - name: Install and Configure Runtime - Containerd
   import_tasks: containerd.yaml
   when: runtime == "containerd"
