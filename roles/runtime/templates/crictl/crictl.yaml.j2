@@ -1,15 +1,11 @@
 {% set containerd_sock = 'unix:///run/containerd/containerd.sock' %}
 {% set crio_sock = 'unix:///run/crio/crio.sock' %}
-{% set dockershim_sock = 'unix:///var/run/dockershim.sock' %}
 {% if 'containerd' == runtime %}
 runtime-endpoint: {{ containerd_sock }}
 image-endpoint: {{ containerd_sock }}
 {% elif 'crio' == runtime %}
 runtime-endpoint: {{ crio_sock }}
 image-endpoint: {{ crio_sock }}
-{% else %}
-runtime-endpoint: {{ dockershim_sock }}
-image-endpoint: {{ dockershim_sock }}
 {% endif %}
 timeout: 2
 debug: false
