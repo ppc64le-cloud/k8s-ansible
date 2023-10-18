@@ -1,0 +1,21 @@
+- name: Download and setup etcd
+  unarchive:
+    src: "https://storage.googleapis.com/etcd/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-{{ ansible_architecture }}.tar.gz"
+    dest: "/usr/local/bin"
+    remote_src: yes
+    extra_opts:
+      - --strip-components=1
+  retries: 3
+  delay: 5
+
+- name: Create the etcd.service file on nodes.
+  copy:
+    src: etcd.service
+    dest: /etc/systemd/system/etcd.service
+    mode: '0644'
+
+- name: Enable and start etcd server on node
+  systemd:
+    name: etcd
+    state: started
+    enabled: True
