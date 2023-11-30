@@ -1,8 +1,45 @@
-- name: Disable SELinux
-  selinux:
-    state: disabled
+- name: change systemd cgroup driver to default cgroupfs
+  replace:
+    path: /etc/containerd/config.toml
+    regexp: 'SystemdCgroup = true'
+    replace: 'SystemdCgroup = false'
 
-- name: Run the node-e2e tests
-  command: ginkgo --focus="\[NodeConformance\]" --skip="\[Flaky\]|\[Slow\]|\[Serial\]" --nodes=8 /usr/local/bin/e2e_node.test -- --k8s-bin-dir /usr/local/bin --test.timeout=1h5m0s --kubelet-flags="--cgroups-per-qos=true --cgroup-root=/ --cgroup-driver={{ cgroup_driver }}"
-  args:
-    chdir: /tmp
+- name: Restart containerd service
+  systemd:
+    name: containerd
+    state: restarted
+
+- name: Install prereq packages
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - git
+      - make
+      - gcc
+
+- name: Capture the commit ID
+  set_fact:
+    commit: "{{ build_version | regex_search('(?<=\\+)(.*)') }}"
+
+- name: Clone a kubernetes github repo
+  git:
+    repo: https://github.com/kubernetes/kubernetes
+    dest: /kubernetes/
+    version: "{{ commit }}"
+    clone: yes
+    update: yes
+
+- name: Create a shell script
+  copy:
+    content: |
+      #!/bin/bash
+      set -o errexit
+
+      echo 'This is a script to run e2e-node tests'
+      pushd /kubernetes
+        make test-e2e-node FOCUS="\[NodeConformance\]" SKIP="\[Flaky\]|\[Slow\]|\[Serial\]"
+      popd
+    dest: /make-test-e2e-node.sh
+    mode: '0755'
