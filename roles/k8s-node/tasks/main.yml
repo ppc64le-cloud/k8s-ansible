@@ -37,9 +37,11 @@
       #!/bin/bash
       set -o errexit
 
+      focus=${FOCUS:-"\[NodeConformance\]"}
+      skip=${SKIP-"\[Flaky\]|\[Slow\]|\[Serial\]"}
       echo 'This is a script to run e2e-node tests'
       pushd /kubernetes
-        make test-e2e-node FOCUS="\[NodeConformance\]" SKIP="\[Flaky\]|\[Slow\]|\[Serial\]"
+        make test-e2e-node FOCUS=${focus} SKIP=${skip}
       popd
     dest: /make-test-e2e-node.sh
     mode: '0755'
