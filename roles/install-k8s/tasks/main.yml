@@ -6,15 +6,9 @@
   command: ethtool --offload {{ ansible_default_ipv4['interface'] }} tx-checksumming off
   when: ansible_default_ipv4['interface'] is defined
 
-- name: Disable SWAP since kubernetes can't work with swap enabled (1/2)
-  shell: |
-    swapoff -a
-
-- name: Disable SWAP in fstab since kubernetes can't work with swap enabled (2/2)
-  replace:
-    path: /etc/fstab
-    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
-    replace: '# \1'
+- name: Disable SELinux and disable SWAP in fstab
+  include_role:
+    name: disable-swap-selinux
 
 # PowerVS has default domainname set as .power-iaas.cloud.ibm.com which is not present in the cloud
 - name: Remove domainname from the hostname
