@@ -20,6 +20,7 @@ runc_version: 1.1.10
 # valid runtimes: containerd [default], crio.
 runtime: containerd
 containerd_version: 1.7.9
+crio_version: 1.28.1
 pause_container_image: registry.k8s.io/pause:3.9
 
 cgroup_driver: systemd
