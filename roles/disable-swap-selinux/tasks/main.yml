@@ -8,7 +8,7 @@
     regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
     replace: '# \1'
 
-- name: Disable SELinux
-  shell: |
-    setenforce 0
-    sed -i 's/^SELINUX=.*/SELINUX=permissive/g' /etc/selinux/config
+- name: Set SELinux to permissive mode
+  ansible.posix.selinux:
+    state: permissive
+    policy: targeted
