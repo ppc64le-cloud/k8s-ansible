@@ -7,7 +7,7 @@
     state: present
     disable_gpg_check: true
 
-- name: Download and set up containerd.
+- name: Download and set up containerd - {{ containerd_version }}
   unarchive:
     src: "https://github.com/containerd/containerd/releases/download/v{{ containerd_version }}/containerd-{{ containerd_version }}-linux-ppc64le.tar.gz"
     dest: "/usr/local"

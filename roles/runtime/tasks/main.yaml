@@ -48,7 +48,7 @@
         mode: '0644'
     - name: Install crictl - {{ critools_version }}
       unarchive:
-        src: "https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ critools_version }}/crictl-{{ critools_version }}-linux-ppc64le.tar.gz"
+        src: "https://github.com/kubernetes-sigs/cri-tools/releases/download/v{{ critools_version }}/crictl-v{{ critools_version }}-linux-ppc64le.tar.gz"
         dest: "/usr/local/bin/"
         remote_src: yes
 
@@ -56,10 +56,10 @@
       yum:
         name: iptables
 
-    - name: Install container runtime - runc
+    - name: Install runc - {{ runc_version }}
       get_url:
         url: "https://github.com/opencontainers/runc/releases/download/v{{ runc_version }}/runc.ppc64le"
-        dest: /usr/bin/runc
+        dest: /usr/local/bin/runc
         mode: '0755'
 
 - name: Install and Configure Runtime - Containerd
