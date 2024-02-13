@@ -6,9 +6,9 @@
     state: present
     disable_gpg_check: true
 
-- name: Download CRI-O.
+- name: Download CRI-O - {{ crio_version }}
   unarchive:
-    src: "https://github.com/cri-o/cri-o/releases/download/v{{ crio_version }}/cri-o.ppc64le.v{{ crio_version }}.tar.gz"
+    src: "https://storage.googleapis.com/cri-o/artifacts/cri-o.ppc64le.v{{ crio_version }}.tar.gz"
     dest: "/usr/local/bin/"
     remote_src: yes
     include: cri-o/bin
