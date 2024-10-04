@@ -42,7 +42,8 @@
       export KUBE_ROOT=/
       echo 'This is a script to run e2e-node tests'
       pushd /kubernetes
-        make test-e2e-node FOCUS=${focus} SKIP=${skip}
+        test_args='--kubelet-flags="--runtime-cgroups=/system.slice/containerd.service"'
+        TEST_ARGS=${test_args} make test-e2e-node FOCUS=${focus} SKIP=${skip}
       popd
     dest: /make-test-e2e-node.sh
     mode: '0755'
