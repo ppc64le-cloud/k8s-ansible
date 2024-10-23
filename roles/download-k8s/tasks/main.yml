@@ -14,9 +14,6 @@
     remote_src: yes
     extra_opts:
       - --strip-components=3
-  with_items:
-    - kubernetes-test-linux-ppc64le.tar.gz
-    - kubernetes-client-linux-ppc64le.tar.gz
-    - kubernetes-server-linux-ppc64le.tar.gz
+  with_items: "{{ k8s_tar_bundles }}"
   retries: 3
   delay: 5
