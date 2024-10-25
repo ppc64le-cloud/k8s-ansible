@@ -17,3 +17,15 @@
   with_items: "{{ k8s_tar_bundles }}"
   retries: 3
   delay: 5
+
+- name: Import container images
+  shell: |
+    export ARCH={{ ansible_architecture }}
+    ctr -n k8s.io images import "/usr/local/bin/{{ item }}.tar"
+    ctr -n k8s.io images ls -q | grep -e {{ item }} | xargs -L 1 -I '{}' /bin/bash -c 'ctr -n k8s.io images tag "{}" "$(echo "{}" | sed s/-'$ARCH':/:/)"'
+  with_items:
+    - kube-apiserver
+    - kube-controller-manager
+    - kubectl
+    - kube-proxy
+    - kube-scheduler
