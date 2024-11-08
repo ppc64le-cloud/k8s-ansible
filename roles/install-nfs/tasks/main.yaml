@@ -1,0 +1,87 @@
+---
+- name: Install prereq & nfs client packages
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - nfs-utils
+      - nfs4-acl-tools  
+
+- name: Create nfs share folder
+  file:
+    path: "{{ nfs_directory }}"
+    state: directory
+    mode: 0755
+    recurse: yes
+
+- name: Add shared directory in exports file
+  ansible.builtin.lineinfile:
+    path: /etc/exports
+    regexp: "{{ nfs_directory }}"
+    line: "{{ nfs_directory }} *(rw,sync,no_root_squash)"
+    state: present
+
+- name: Start services
+  block:
+    - name: Start rpcbind
+      systemd:
+        name: rpcbind
+        enabled: yes
+        state: restarted
+
+    - name: Start nfs-server
+      systemd:
+        name: nfs-server
+        enabled: yes
+        state: restarted
+
+- name: Expose shared directory to nfs server
+  command: exportfs -arv   
+
+- name: Copy nfs client resource files to /tmp
+  copy:
+    src: "{{ item }}"
+    dest: /tmp/
+  with_fileglob:
+    - "*"
+
+- name: Fetch NFS server host IP
+  shell: kubectl get nodes -o wide | grep 'master' | awk '{print $6}'
+  register: nfs_server_ip
+
+- name: Deploy NFS client provisioner
+  template:
+    src: nfs-client-provisioner.yaml.j2
+    dest: /tmp/deployment.yaml
+  vars:
+    nfs_server: "{{ nfs_server_ip.stdout }}"
+
+- name: remove taint
+  command: "kubectl taint nodes --all node-role.kubernetes.io/control-plane-"
+
+- name: Apply RBAC configuration
+  command: kubectl create -f /tmp/rbac.yaml
+  ignore_errors: true
+
+- name: Apply StorageClass configuration
+  command: kubectl create -f /tmp/class.yaml
+  ignore_errors: true
+
+- name: Apply Deployment configuration
+  command: kubectl create -f /tmp/deployment.yaml
+  ignore_errors: true
+
+- name: Wait for pods to start
+  command: >
+    kubectl get pods -l app=nfs-client-provisioner
+    -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}'
+  register: pod_status
+  retries: 20
+  delay: 6
+  until: pod_status.stdout == "True"
+
+- name: Mark managed-nfs-storage as default storage class
+  command: >
+    kubectl patch storageclass managed-nfs-storage
+    -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'
