@@ -79,3 +79,6 @@ etcd_version: v3.5.9
 cni_plugins_version: v1.3.0
 cni_plugins_url: https://github.com/containernetworking/plugins/releases/download
 cni_plugins_tarball: "cni-plugins-linux-{{ ansible_architecture }}-{{ cni_plugins_version }}.tgz"
+
+# NFS server details
+nfs_directory: "/var/nfsshare"

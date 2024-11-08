@@ -1,0 +1,57 @@
+---
+- name: Install nfs server
+  yum:
+    name: nfs-utils
+
+- name: Create nfs share folder
+  file:
+    path: "{{ nfs_directory }}"
+    state: directory
+    mode: 0755
+    recurse: yes
+
+- name: Add shared directory in exports file
+  ansible.builtin.lineinfile:
+    path: /etc/exports
+    regexp: "{{ nfs_directory }}"
+    line: "{{ nfs_directory }} *(rw,sync,no_root_squash)"
+    state: present
+
+- name: Start services
+  block:
+    - name: Start rpcbind
+      systemd:
+        name: rpcbind
+        enabled: yes
+        state: restarted
+
+    - name: Start nfs-server
+      systemd:
+        name: nfs-server
+        enabled: yes
+        state: restarted
+
+- name: Expose shared directory to nfs server
+  command: exportfs -arv
+
+- name: Install nfs client packages
+  yum:
+    name: 
+      - nfs-utils
+      - nfs4-acl-tools
+
+- name: Copy nfs client resource files to /tmp
+  copy:
+    src: "{{ item }}"
+    dest: /tmp/
+  with_fileglob:
+    - "*"
+
+- name: Template a nfs client script to /tmp/deploy-nfs-client.sh
+  template:
+    src: deploy-nfs-client.sh.j2
+    dest: /tmp/deploy-nfs-client.sh
+    mode: '0644'
+
+- name: Run nfs client deployment script
+  shell: bash /tmp/deploy-nfs-client.sh
