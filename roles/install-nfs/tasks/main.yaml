@@ -34,11 +34,15 @@
 - name: Expose shared directory to nfs server
   command: exportfs -arv
 
-- name: Install nfs client packages
+- name: Install prereq & nfs client packages
   yum:
-    name: 
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - wget
       - nfs-utils
-      - nfs4-acl-tools
+      - nfs4-acl-tools     
 
 - name: Copy nfs client resource files to /tmp
   copy:
@@ -47,11 +51,35 @@
   with_fileglob:
     - "*"
 
-- name: Template a nfs client script to /tmp/deploy-nfs-client.sh
-  template:
-    src: deploy-nfs-client.sh.j2
-    dest: /tmp/deploy-nfs-client.sh
-    mode: '0644'
+- name: Render and apply Kubernetes Deployment
+  tasks:
+    - name: Render the deployment template
+      template:
+        src: nfs-client-provisioner.yaml.j2
+        dest: /tmp/deployment.yaml
 
-- name: Run nfs client deployment script
-  shell: bash /tmp/deploy-nfs-client.sh
+    - name: Apply RBAC configuration
+      command: kubectl create -f /tmp/rbac.yaml
+      ignore_errors: true
+
+    - name: Apply StorageClass configuration
+      command: kubectl create -f /tmp/class.yaml
+      ignore_errors: true
+
+    - name: Apply Deployment configuration
+      command: kubectl create -f /tmp/deployment.yaml
+      ignore_errors: true
+
+- name: Wait for pods to start
+  command: >
+    kubectl get pods -l app=nfs-client-provisioner
+    -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}'
+  register: pod_status
+  retries: 20
+  delay: 6
+  until: pod_status.stdout == "True"
+
+- name: Mark managed-nfs-storage as default storage class
+  command: >
+    kubectl patch storageclass managed-nfs-storage
+    -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'

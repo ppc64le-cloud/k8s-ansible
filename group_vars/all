@@ -80,5 +80,5 @@ cni_plugins_version: v1.3.0
 cni_plugins_url: https://github.com/containernetworking/plugins/releases/download
 cni_plugins_tarball: "cni-plugins-linux-{{ ansible_architecture }}-{{ cni_plugins_version }}.tgz"
 
-# NFS server details
-nfs_directory: "/var/nfsshare"
+# yq download url
+yq_download_url: "https://github.com/mikefarah/yq/releases/download/v4.40.5/yq_linux_ppc64le"

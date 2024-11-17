@@ -4,8 +4,7 @@ metadata:
   name: nfs-client-provisioner
   labels:
     app: nfs-client-provisioner
-  # replace with namespace where provisioner is deployed
-  namespace: default
+  namespace: {{ namespace | default('default') }}
 spec:
   replicas: 1
   strategy:
@@ -21,7 +20,7 @@ spec:
       serviceAccountName: nfs-client-provisioner
       containers:
         - name: nfs-client-provisioner
-          image: quay.io/external_storage/nfs-client-provisioner:latest
+          image: {{ image | default('k8s.gcr.io/sig-storage/nfs-subdir-external-provisioner:v4.0.2') }}
           volumeMounts:
             - name: nfs-client-root
               mountPath: /persistentvolumes
@@ -29,11 +28,13 @@ spec:
             - name: PROVISIONER_NAME
               value: fuseim.pri/ifs
             - name: NFS_SERVER
-              value: 10.10.10.60
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
             - name: NFS_PATH
-              value: /ifs/kubernetes
+              value: {{ nfs_path | default('/var/nfsshare') }}
       volumes:
         - name: nfs-client-root
           nfs:
-            server: 10.10.10.60
-            path: /ifs/kubernetes
+            server: "{{ nfs_server | default('$(NFS_SERVER)') }}"
+            path: {{ nfs_path | default('/var/nfsshare') }}
