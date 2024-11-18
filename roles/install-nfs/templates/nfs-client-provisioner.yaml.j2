@@ -4,7 +4,7 @@ metadata:
   name: nfs-client-provisioner
   labels:
     app: nfs-client-provisioner
-  namespace: {{ namespace | default('default') }}
+  namespace: default
 spec:
   replicas: 1
   strategy:
@@ -32,9 +32,9 @@ spec:
                 fieldRef:
                   fieldPath: status.hostIP
             - name: NFS_PATH
-              value: {{ nfs_path | default('/var/nfsshare') }}
+              value: {{ nfs_directory | default('/var/nfsshare') }}
       volumes:
         - name: nfs-client-root
           nfs:
-            server: "{{ nfs_server | default('$(NFS_SERVER)') }}"
-            path: {{ nfs_path | default('/var/nfsshare') }}
+            server: "{{ nfs_server }}"
+            path: {{ nfs_directory | default('/var/nfsshare') }}
