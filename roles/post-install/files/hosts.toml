@@ -1,0 +1,4 @@
+server = "https://{{ registry_domain_name }}"
+
+[host."http://{{ registry_domain_name }}"]
+  capabilities = ["pull", "resolve", "push"]
