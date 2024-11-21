@@ -57,8 +57,14 @@
   vars:
     nfs_server: "{{ nfs_server_ip.stdout }}"
 
-- name: remove taint
+- name: Check if the control-plane taint exists
+  shell: "kubectl get nodes -o wide | grep 'node-role.kubernetes.io/control-plane'"
+  register: taint_check
+  ignore_errors: true
+
+- name: Remove control-plane taint if present
   command: "kubectl taint nodes --all node-role.kubernetes.io/control-plane-"
+  when: taint_check.rc == 0
 
 - name: Apply RBAC configuration
   command: kubectl create -f /tmp/rbac.yaml
