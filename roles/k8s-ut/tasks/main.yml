@@ -1,0 +1,33 @@
+- name: Install prereq packages
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - git
+      - make
+      - gcc
+
+- name: Create a shell script
+  copy:
+    content: |
+      #!/bin/bash
+      set -o errexit
+
+      echo 'This is a script to run k8s UT tests'
+      useradd nonroot
+      su - nonroot <<EOF
+      set -o errexit
+
+      git clone https://github.com/kubernetes/kubernetes
+      pushd kubernetes
+      export CGO_ENABLED=1
+      export KUBE_TIMEOUT='--timeout=600s'
+      export KUBE_KEEP_VERBOSE_TEST_OUTPUT=y
+      export LOG_LEVEL=4
+      export ARTIFACTS=~/artifacts
+      make test KUBE_RACE=-race
+      popd
+      EOF
+    dest: /make-test.sh
+    mode: '0755'

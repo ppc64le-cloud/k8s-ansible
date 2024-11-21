@@ -1,0 +1,5 @@
+- name: Install prerequisites and run e2e node tests
+  hosts:
+    - masters
+  roles:
+    - k8s-ut
