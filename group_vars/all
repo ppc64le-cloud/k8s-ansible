@@ -45,6 +45,7 @@ extra_cert: "{{ cluster_name }}-master.{{ powervs_dns_zone }}"
 release_marker: ci/latest
 bootstrap_token: abcdef.0123456789abcdef
 kubelet_extra_args: ""
+k8s_branch: master
 
 # in the format of: https://dl.k8s.io/{{ directory }}/{{ build_version }}/kubernetes-client-linux-ppc64le.tar.gz
 # Eg: https://dl.k8s.io/ci/v1.28.0-alpha.1.48+039ae1edf5a71f/kubernetes-client-linux-ppc64le.tar.gz
