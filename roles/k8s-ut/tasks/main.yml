@@ -26,6 +26,7 @@
       export KUBE_KEEP_VERBOSE_TEST_OUTPUT=y
       export LOG_LEVEL=4
       export ARTIFACTS=~/artifacts
+      git checkout {{ k8s_branch }}
       make test KUBE_RACE=-race
       popd
       EOF
