@@ -4,7 +4,9 @@
 # Follow up task to remove this in future https://jsw.ibm.com/browse/POWERCLOUD-34
 - name: Disable tx-checksumming on default network interface
   command: ethtool --offload {{ ansible_default_ipv4['interface'] }} tx-checksumming off
-  when: ansible_default_ipv4['interface'] is defined
+  when: 
+    - ansible_default_ipv4['interface'] is defined
+    - ansible_architecture == 'ppc64le'
 
 - name: Disable SELinux and disable SWAP in fstab
   include_role:
@@ -25,6 +27,19 @@
       - socat
       - iproute-tc
       - iptables
+  when: ansible_pkg_mgr == 'yum'
+
+- name: Install prereq Ubuntu packages 
+  apt:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - conntrack
+      - socat
+      - iproute2
+      - iptables
+  when: ansible_pkg_mgr == 'apt'
 
 - name: Template a kubelet service to /usr/lib/systemd/system/kubelet.service
   template:

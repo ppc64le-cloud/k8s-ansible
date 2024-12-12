@@ -5,10 +5,19 @@
       - conmon
     state: present
     disable_gpg_check: true
+  when: ansible_pkg_mgr == 'yum' 
+
+- name: Install CRI-O and dependencies.
+  apt:
+    name:
+      - conmon
+    state: present
+    allow_unauthenticated: true
+  when: ansible_pkg_mgr == 'apt'
 
 - name: Download CRI-O - {{ crio_version }}
   unarchive:
-    src: "https://storage.googleapis.com/cri-o/artifacts/cri-o.ppc64le.v{{ crio_version }}.tar.gz"
+    src: "https://storage.googleapis.com/cri-o/artifacts/cri-o.{{ ansible_architecture }}.v{{ crio_version }}.tar.gz"
     dest: "/usr/local/bin/"
     remote_src: yes
     include: cri-o/bin

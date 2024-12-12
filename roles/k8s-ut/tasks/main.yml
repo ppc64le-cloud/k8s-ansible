@@ -7,6 +7,21 @@
       - git
       - make
       - gcc
+  when: ansible_pkg_mgr == 'yum'
+
+- name: Update apt-get repo/cache and install prereq packages
+  apt:
+    force_apt_get: yes
+    update_cache: yes
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - git
+      - make
+      - gcc
+      - jq
+  when: ansible_pkg_mgr == 'apt'
 
 - name: Create a shell script
   copy:
@@ -15,7 +30,9 @@
       set -o errexit
 
       echo 'This is a script to run k8s UT tests'
-      useradd nonroot
+
+      useradd -s /bin/bash -d /home/nonroot -m nonroot
+
       su - nonroot <<EOF
       set -o errexit
 

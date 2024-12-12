@@ -64,6 +64,9 @@ bucket: ppc64le-ci-builds
 # directory: kubernetes/master/golang/master
 # build_version: d39214ade1d60c
 
+##### CNI provider #####
+cni_provider: calico
+
 ##### Calico Configurations #####
 calico_version: v3.27.0
 # The available methods of installation for Calico can be either using the tigera operator, or using the manifest.
@@ -75,6 +78,9 @@ prepull_images: []
 
 ##### ETCD version #####
 etcd_version: v3.5.9
+
+##### Flannel configurations #####
+flannel_version: v0.26.1
 
 ##### Bridge CNI Configurations #####
 cni_plugins_version: v1.3.0
