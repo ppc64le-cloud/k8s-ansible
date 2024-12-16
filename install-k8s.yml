@@ -6,8 +6,17 @@
     - runtime
     - download-k8s
     - install-k8s
+    - role: install-cni-plugins
+      when: ansible_architecture =="s390x"
 
 - name: Install networking - calico
   hosts: masters
   roles:
-    - install-calico
+    - role: install-calico
+      when: ansible_architecture == "ppc64le"
+
+- name: Install networking - flannel
+  hosts: masters
+  roles:
+    - role: install-flannel
+      when: ansible_architecture =="s390x"

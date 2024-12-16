@@ -12,3 +12,4 @@
   ansible.posix.selinux:
     state: permissive
     policy: targeted
+  when:  ansible_distribution == "RedHat"

@@ -18,6 +18,20 @@
       - git
       - make
       - gcc
+  when: ansible_pkg_mgr == 'yum'
+
+- name: Update apt-get repo/cache and install prereq packages
+  apt:
+    force_apt_get: yes
+    update_cache: yes
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - git
+      - make
+      - gcc
+  when: ansible_pkg_mgr == 'apt'
 
 - name: Capture the commit ID
   set_fact:

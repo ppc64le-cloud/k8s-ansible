@@ -33,9 +33,9 @@ registry_mirrors:
 
 ##### Kubernetes Configurations #####
 k8s_tar_bundles:
-  - kubernetes-test-linux-ppc64le.tar.gz
-  - kubernetes-client-linux-ppc64le.tar.gz
-  - kubernetes-server-linux-ppc64le.tar.gz
+  - kubernetes-test-linux-{{ ansible_architecture }}.tar.gz
+  - kubernetes-client-linux-{{ ansible_architecture }}.tar.gz
+  - kubernetes-server-linux-{{ ansible_architecture }}.tar.gz
 apiserver_port: 992
 cluster_name: "k8s-cluster-1"
 powervs_dns_zone: "k8s.test"
