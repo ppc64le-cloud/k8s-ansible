@@ -1,0 +1,30 @@
+- name: Setup containerd creds & certificate
+  block: 
+    - name: Create a directory for registry certificate
+      file:
+        path: "/etc/containerd/certs.d/{{ registry_domain_name }}"
+        state: directory
+
+    - name: Copy ssl certificate file
+      copy:
+        src: share/ssl.crt
+        dest: "/etc/containerd/certs.d/{{ registry_domain_name }}/ssl.crt"
+
+    - name: Create hosts.toml file
+      template:
+        src: files/hosts.toml
+        dest: "/etc/containerd/certs.d/{{ registry_domain_name }}/hosts.toml"
+
+# enable access to registry from kubernetes pods
+# TODO: remove dirty patch solution 
+- name: Create config.json file for master
+  when: node_type == "master"
+  template:
+    src: files/config.json
+    dest: "/var/lib/kubelet/config.json"
+
+- name: Create config.json file for worker
+  when: node_type == "worker"
+  template:
+    src: files/config.json
+    dest: "/var/lib/kubelet/config.json"

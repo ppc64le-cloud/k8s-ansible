@@ -1,0 +1,5 @@
+server = "http://{{ registry_domain_name  }}"
+
+[host."http://{{ registry_domain_name }}"]
+  capabilities = ["pull", "resolve", "push"]
+  ca = "/etc/containerd/certs.d/{{ registry_domain_name }}/ssl.crt"
