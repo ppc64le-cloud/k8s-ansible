@@ -10,20 +10,21 @@ ansible-playbook -i examples/containerd-cluster/hosts.yml install-k8s.yml --extr
 ```
 
 ##### Method 2: Deploy using hack/k8s-installer.sh for alpha/release Kubernetes installation
-The k8s-installer.sh utility under hack, provides an option to choose between the latest release or the alpha version of Kubernetes to be deployed on VMs.
+The k8s-installer.sh utility under hack, provides an option to choose between the latest release or the alpha version of Kubernetes to be deployed on VMs from the hack directory.
 ###### Example usages:
 ```shell
-./hack/k8s-installer.sh -c X.X.X.X -w Y.Y.Y.Y -p <playbook to use> -a|-r -y
+./k8s-installer.sh -c X.X.X.X -w Y.Y.Y.Y -p <playbook to use> -a|-r -y
 ```
 To deploy latest Alpha release of k8s:
 ```shell
-./hack/k8s-installer.sh -w X.X.X.X -c Y.Y.Y.Y -a -y
+./k8s-installer.sh -w X.X.X.X -c Y.Y.Y.Y -a -y
 ```
 To deploy latest Stable release of k8s:
 ```shell
-./hack/k8s-installer.sh -w X.X.X.X -c Y.Y.Y.Y -r -y
+./k8s-installer.sh -w X.X.X.X -c Y.Y.Y.Y -r -y
 ```
 To deploy latest Stable release of k8s for perf-tests:
 ```shell
-./hack/k8s-installer.sh -p install-k8s-perf.yml -w X.X.X.X -c Y.Y.Y.Y -r -y
+./k8s-installer.sh -p install-k8s-perf.yml -w X.X.X.X -c Y.Y.Y.Y -r -y
 ```
+
