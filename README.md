@@ -1,6 +1,18 @@
 # k8s-ansible : Ansible utility to deploy alpha/release version Kubernetes clusters.
 
 #### Deploying a stable Kubernetes cluster
+Prerequisite:
+Add in the node Public IP + hostname entries under /etc/hosts file on the deployer.
+For eg.
+
+```
+[root@kubetest2-tf1 hack]#
+[root@kubetest2-tf1 hack]# cat /etc/hosts
+127.0.0.1   localhost localhost.localdomain localhost4 localhost4.localdomain4
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+1.2.3.4 <Nodename 1>
+1.2.3.5 <Nodename 2>
+```
 
 ##### Method 1: Update fields in both hosts.yml and extra-vars-k8s.json to deploy cluster
 
