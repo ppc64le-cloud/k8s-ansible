@@ -1,0 +1,26 @@
+- name: Disable SWAP (1/2)
+  shell: |
+    swapoff -a
+  when: not swap_enabled
+
+- name: Disable SWAP in fstab (2/2)
+  replace:
+    path: /etc/fstab
+    regexp: '^([^#].*?\sswap\s+sw\s+.*)$'
+    replace: '# \1'
+  when: not swap_enabled
+
+- name: Create a swapfile and enable swap
+  shell: |
+    dd if=/dev/zero of=/swapfile bs=128M count=32
+    chmod 600 /swapfile
+    mkswap /swapfile
+    swapon /swapfile
+    swapon -s
+  when: swap_enabled
+
+- name: Set SELinux to permissive mode
+  ansible.posix.selinux:
+    state: permissive
+    policy: targeted
+  when:  ansible_distribution == "RedHat"

@@ -8,9 +8,9 @@
     - ansible_default_ipv4['interface'] is defined
     - ansible_architecture == 'ppc64le'
 
-- name: Disable SELinux and disable SWAP in fstab
+- name: Toggle SElinux and swap settings on node
   include_role:
-    name: disable-swap-selinux
+    name: toggle-swap-selinux
 
 # PowerVS has default domainname set as .power-iaas.cloud.ibm.com which is not present in the cloud
 - name: Remove domainname from the hostname
