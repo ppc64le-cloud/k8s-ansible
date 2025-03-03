@@ -6,7 +6,7 @@
 
 # Path to playbooks, extra-vars and host files.
 project_dir=$(dirname $(pwd))
-var_file=$project_dir/examples/containerd-cluster/extra-vars-k8s.json
+var_file=$project_dir/group_vars/all
 hosts_file=$project_dir/examples/containerd-cluster/hosts.yml
 
 # Regex for validating IPs.
@@ -33,6 +33,7 @@ Usage: $0 -p <playbook> -c <IP> -w <IP>
       Eg: X.X.X.X for a single node or "X.X.X.X Y.Y.Y.Y" for multinode in quotes.
    -r Use the latest stable-release for cluster deployment.
    -a Use the latest alpha-release for cluster deployment.
+   -l Load-balancer endpoint to utilize in case of a HA setup.
    -y Proceed to run playbook to deploy k8s-cluster after generating fields.
 EOF
 exit 1
@@ -41,8 +42,8 @@ exit 1
 # check_reachability: Validates and pings the machine IPs.
 check_reachability()
 {
-  ip_addressess=("$@")
-  for ip_address in $ip_addressess; do
+  ip_addresses=("$@")
+  for ip_address in $ip_addresses; do
   if [[ "$ip_address" =~ ^($binary_octet\.){3}$binary_octet$ ]]; then
     ping -c1 $ip_address 1>/dev/null
     if [ $? -eq 0 ]; then
@@ -50,11 +51,11 @@ check_reachability()
       echo $ip_address >> $hosts_file
     else
       echo "$ip_address is not reachable"
-      exit -1
+      exit 1
     fi
   else
     echo "Invalid IP $ip_address"
-    exit -1
+    exit 1
   fi
   done < <(echo "$ip_address")
 }
@@ -63,10 +64,10 @@ check_reachability()
 write_to_extravars()
 {
   sed -i \
-  -e "s/  \"directory\": .*/  \"directory\": \"$directory\",/" \
-  -e "s/  \"build_version\": .*/  \"build_version\": \"$version\",/" \
-  -e "s/  \"release_marker\": .*/  \"release_marker\": \"$release_marker\",/" \
-  -e "s/  \"extra_cert\": .*/  \"extra_cert\" : \"$controllers\",/" \
+  -e "s/^directory: .*/directory: $directory/" \
+  -e "s/build_version: .*/build_version: $version/" \
+  -e "s/release_marker: .*/release_marker: $release_marker/" \
+  -e "s/extra_cert: .*/extra_cert : $(cut -d ' ' -f 1 <<< $controllers)/" \
   $var_file
 }
 
@@ -74,18 +75,31 @@ write_to_extravars()
 >$hosts_file
 
 # Process arguments
-while getopts "ac:p:rw:y" opt; do
+while getopts "l:ac:p:rw:y" opt; do
   case "$opt" in
     p)
       playbook="$OPTARG";;
     c)
       controllers=("$OPTARG")
       echo "[masters]" >> $hosts_file
-      check_reachability $controllers;;
+      check_reachability "${controllers[@]}";;
     w)
       workers=("$OPTARG")
       echo "[workers]" >> $hosts_file
       check_reachability "${workers[@]}";;
+    l)
+      count=$(echo "$controllers" | wc -w)
+      if [ "$count" -lt 2 ]; then
+        echo "The setup cannot proceed with a single master node that needs to be loadbalanced."
+        exit 1
+      else
+        loadbalancer="$OPTARG"
+        if  [ -z "$loadbalancer" ]; then
+          echo "Error: loadbalancer is empty. Exiting."
+          exit 1
+        fi
+        sed -i "s/^loadbalancer:.*/loadbalancer: ${loadbalancer}/" $var_file
+      fi;;
     a)
       alpha="true"
       echo "Fetching latest k8s Alpha CI version."
@@ -139,3 +153,4 @@ fi
 
 # Run the playbook post validation.
 ansible-playbook -i $hosts_file  $project_dir/$playbook --extra-vars "@$var_file"
+

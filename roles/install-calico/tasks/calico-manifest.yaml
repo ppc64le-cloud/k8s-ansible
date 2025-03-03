@@ -3,14 +3,17 @@
     url: "https://raw.githubusercontent.com/projectcalico/calico/{{ calico_version }}/manifests/calico.yaml"
     dest: /tmp/calico.yaml
     mode: '0755'
+  when: inventory_hostname == groups['masters'][0]
 
 - name: Set veth_mtu
   replace:
     path: /tmp/calico.yaml
     regexp: 'veth_mtu\:.*'
     replace: 'veth_mtu: "{{ calico_mtu }}"'
+  when: inventory_hostname == groups['masters'][0]
 
 - name: Set up Calico CNI from manifest
   command: kubectl create -f /tmp/calico.yaml
   environment:
     KUBECONFIG: /etc/kubernetes/admin.conf
+  when: inventory_hostname == groups['masters'][0]
