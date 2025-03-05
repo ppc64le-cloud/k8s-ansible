@@ -1,0 +1,41 @@
+- name: Install pre-requisite packages in bastion
+  package:
+    name: iptables
+    state: present
+  when: node_type == "bastion" and ansible_pkg_mgr in ['yum', 'dnf']
+
+- name: Configure networks on bastion
+  shell: |
+    dev_uuid=$(grep $(ip a | grep {{ bastion_private_ip }} | awk '{ print $NF }') <(nmcli -g device,uuid con) | cut -d':' -f2)
+    nmcli connection modify $dev_uuid +ipv4.routes "{{ private_cidr }} {{ bastion_private_gateway }}"
+    nmcli connection modify $dev_uuid -ipv4.gateway ""
+    nmcli connection up $dev_uuid
+  when: node_type == "bastion"
+
+- name: Copy the ip-forwarder.sh script
+  copy:
+    src: ip-forwarder.sh
+    dest: /root
+    mode: '0744'
+  when: node_type == "bastion"
+
+- name: Setup forwarding rules through ip-forwarder.sh on bastion
+  shell: |
+    public_interface=$(ip route get 8.8.8.8 | sed -n 's/.*dev \([^ ]*\).*/\1/p')
+    private_interface=$(grep -Rl "{{ bastion_private_ip }}" /etc/sysconfig/network-scripts/ | xargs sed -n 's/.*DEVICE=\([^ ]*\).*/\1/p')
+    /root/ip-forwarder.sh "$private_interface" "$public_interface"
+    (crontab -l; echo "@reboot /root/ip-forwarder.sh \"$private_interface\" \"$public_interface\"") | crontab -
+  when: node_type == "bastion"
+
+- name: Identify interfaces on the masters and workers associated with private IP
+  shell: |
+    dev_uuid=$(grep $(ip a | grep {{ ansible_default_ipv4.address }} | awk '{ print $NF }') <(nmcli -g device,uuid con) | cut -d':' -f2)
+    nmcli conn modify $dev_uuid ipv4.gateway "{{ bastion_private_ip }}"
+    nmcli conn modify $dev_uuid +ipv4.routes "{{ private_cidr }} {{ bastion_private_gateway }}"
+    nmcli conn up $dev_uuid
+
+  when: node_type == "master" or node_type == "worker"
+
+- name: Ping a Public DNS to confirm internet connectivity
+  shell: ping -c 2 -w 2 8.8.8.8
+  when: node_type == "master" or node_type == "worker"
