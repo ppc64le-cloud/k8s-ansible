@@ -60,13 +60,15 @@
     dest: /root/kubeadm.yaml
     mode: '0644'
 
-- name: kubeadm init for a single control-plane node
-  command: "kubeadm init --config /root/kubeadm.yaml"
-  when: groups['masters']|length < 2 and node_type == "master"
+- name: Perform kubeadm init on the control plane node based on LB configuration.
+  command: >
+    {% if loadbalancer == '' -%}
+      kubeadm init --config /root/kubeadm.yaml
+    {%- else -%}
+      kubeadm init --config /root/kubeadm.yaml --upload-certs
+    {%- endif %}
+  when: inventory_hostname == groups['masters'][0]
 
-- name: kubeadm init for multi control-plane node
-  command: "kubeadm init --config /root/kubeadm.yaml --upload-certs"
-  when: groups['masters']|length > 1 and inventory_hostname == groups['masters'][0]
 
 - name: generate join command for HA cluster
   environment:
@@ -82,7 +84,7 @@
   set_fact:
     kubernetes_cp_join_command: >
       {{ kubernetes_cp_join_command_result.stdout }}
-  when: kubernetes_cp_join_command_result.stdout is defined
+  when: kubernetes_cp_join_command_result.stdout is defined and groups['masters']|length > 1
   delegate_to: "{{ item }}"
   delegate_facts: true
   with_items: "{{ groups['all'] }}"
