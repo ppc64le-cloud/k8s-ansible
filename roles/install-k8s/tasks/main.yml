@@ -4,7 +4,7 @@
 # Follow up task to remove this in future https://jsw.ibm.com/browse/POWERCLOUD-34
 - name: Disable tx-checksumming on default network interface
   command: ethtool --offload {{ ansible_default_ipv4['interface'] }} tx-checksumming off
-  when: 
+  when:
     - ansible_default_ipv4['interface'] is defined
     - ansible_architecture == 'ppc64le'
 
@@ -13,7 +13,7 @@
     name: disable-swap-selinux
 
 # PowerVS has default domainname set as .power-iaas.cloud.ibm.com which is not present in the cloud
-- name: Remove domainname from the hostname
+- name: Remove domain name from the hostname
   shell: |
     hostnamectl set-hostname $(hostname | cut -d "." -f1)
 
@@ -29,7 +29,7 @@
       - iptables
   when: ansible_pkg_mgr == 'yum'
 
-- name: Install prereq Ubuntu packages 
+- name: Install prereq Ubuntu packages
   apt:
     name: "{{ packages }}"
     state: present
@@ -60,15 +60,45 @@
     dest: /root/kubeadm.yaml
     mode: '0644'
 
-- name: kubeadm init
-  command: "kubeadm init --config /root/kubeadm.yaml"
-  when: node_type == "master"
+- name: Perform kubeadm init on the control plane node based on LB configuration.
+  command: >
+    {% if loadbalancer == '' -%}
+      kubeadm init --config /root/kubeadm.yaml
+    {%- else -%}
+      kubeadm init --config /root/kubeadm.yaml --upload-certs
+    {%- endif %}
+  when: inventory_hostname == groups['masters'][0]
+
+
+- name: generate join command for HA cluster
+  environment:
+    KUBECONFIG: /etc/kubernetes/admin.conf
+  shell: |
+    cert_key=$(kubeadm init phase upload-certs --upload-certs | tail -1)
+    kubeadm token create --print-join-command --certificate-key $cert_key
+  changed_when: false
+  when: groups['masters']|length > 1 and inventory_hostname == groups['masters'][0]
+  register: kubernetes_cp_join_command_result
+
+- name: Set the kubeadm join command for control plane nodes globally.
+  set_fact:
+    kubernetes_cp_join_command: >
+      {{ kubernetes_cp_join_command_result.stdout }}
+  when: kubernetes_cp_join_command_result.stdout is defined and groups['masters']|length > 1
+  delegate_to: "{{ item }}"
+  delegate_facts: true
+  with_items: "{{ groups['all'] }}"
+
+- name: kubeadm join control plane nodes
+  command: "{{ kubernetes_cp_join_command }}"
+  when: inventory_hostname != groups['masters'][0] and node_type == "master"
 
 - name: Create a directory ${HOME}/.kube if it does not exist
   file:
     path: ${HOME}/.kube/
     state: directory
     mode: '0755'
+  when: node_type == "master"
 
 - name: Copy the /etc/kubernetes/admin.conf to ${HOME}/.kube/config
   copy:
@@ -105,6 +135,6 @@
   delegate_facts: true
   with_items: "{{ groups['all'] }}"
 
-- name: kubeadm join
+- name: kubeadm join worker nodes
   command: "{{ kubernetes_join_command }}"
   when: node_type == "worker"

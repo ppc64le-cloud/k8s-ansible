@@ -26,6 +26,9 @@ networking:
   podSubnet: "{{ pod_subnet }}"
   dnsDomain: "cluster.local"
 kubernetesVersion: "{{ release_marker }}"
+{% if (loadbalancer is defined) and '' != loadbalancer %}
+controlPlaneEndpoint: "{{ loadbalancer }}:{{ apiserver_port }}"
+{% endif %}
 apiServer:
   timeoutForControlPlane: 4m0s
 {% if (extra_cert is defined) and extra_cert %}

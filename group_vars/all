@@ -37,6 +37,7 @@ k8s_tar_bundles:
   - kubernetes-client-linux-ppc64le.tar.gz
   - kubernetes-server-linux-ppc64le.tar.gz
 apiserver_port: 6443
+loadbalancer: ""
 cluster_name: "k8s-cluster-1"
 powervs_dns_zone: "k8s.test"
 pod_subnet: 172.20.0.0/16
