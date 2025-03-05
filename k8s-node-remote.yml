@@ -2,7 +2,7 @@
   hosts:
     - masters
   roles:
-    - disable-swap-selinux
+    - toggle-swap-selinux
     - install-bridge-cni
     - install-etcd
     - runtime

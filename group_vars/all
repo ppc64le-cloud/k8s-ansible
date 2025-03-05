@@ -24,6 +24,7 @@ crio_version: 1.29.1
 pause_container_image: registry.k8s.io/pause:3.9
 
 cgroup_driver: systemd
+swap_enabled: false
 # By default it will set to the default interface MTU value, set the MTU here to override it
 # MTU: 9000
 # additional docker mirrors to avoid the flood to the hub.docker.com
