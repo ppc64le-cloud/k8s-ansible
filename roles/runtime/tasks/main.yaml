@@ -53,9 +53,9 @@
         remote_src: yes
 
     - name: Install iptables
-      yum:
+      package:
         name: iptables
-      when: ansible_pkg_mgr == 'yum'
+      when: ansible_pkg_mgr in ['yum', 'dnf']
 
     - name: Install iptables
       apt:

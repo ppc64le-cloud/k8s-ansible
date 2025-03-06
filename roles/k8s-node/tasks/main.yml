@@ -10,15 +10,13 @@
     state: restarted
 
 - name: Install prereq packages
-  yum:
-    name: "{{ packages }}"
-    state: present
-  vars:
-    packages:
+  package:
+    name:
       - git
       - make
       - gcc
-  when: ansible_pkg_mgr == 'yum'
+    state: present
+  when: ansible_pkg_mgr in ['yum', 'dnf']
 
 - name: Update apt-get repo/cache and install prereq packages
   apt:

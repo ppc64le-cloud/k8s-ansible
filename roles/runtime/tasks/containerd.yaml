@@ -1,12 +1,12 @@
 ---
 - name: Install containerd dependencies
-  yum:
+  package:
     name:
       - device-mapper-persistent-data
       - lvm2
     state: present
     disable_gpg_check: true
-  when: ansible_pkg_mgr == 'yum'
+  when: ansible_pkg_mgr in ['yum', 'dnf']
 
 - name: Install containerd dependencies
   apt:

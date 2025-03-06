@@ -18,16 +18,14 @@
     hostnamectl set-hostname $(hostname | cut -d "." -f1)
 
 - name: Install prereq packages
-  yum:
-    name: "{{ packages }}"
-    state: present
-  vars:
-    packages:
+  package:
+    name:
       - conntrack-tools
       - socat
       - iproute-tc
       - iptables
-  when: ansible_pkg_mgr == 'yum'
+    state: present
+  when: ansible_pkg_mgr in ['yum', 'dnf']
 
 - name: Install prereq Ubuntu packages
   apt:
