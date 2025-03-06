@@ -3,6 +3,7 @@
     - masters
     - workers
   roles:
+    - update-pkgs
     - runtime
     - download-k8s
     - install-k8s
