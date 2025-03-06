@@ -1,11 +1,11 @@
 ---
 - name: Install CRI-O and dependencies.
-  yum:
+  package:
     name:
       - conmon
     state: present
     disable_gpg_check: true
-  when: ansible_pkg_mgr == 'yum' 
+  when: ansible_pkg_mgr in ['yum', 'dnf']
 
 - name: Install CRI-O and dependencies.
   apt:
