@@ -1,15 +1,4 @@
 ---
-- name: Add Redhat Subscription
-  block:
-    - name: check username and password are set
-      fail:
-        msg: "username and password are the mandatory values to execute the playbook for rhel"
-      when:  ansible_distribution == "RedHat" and  username is not defined or password is not defined
-
-    - name: Register RHEL
-      shell: subscription-manager register --username {{ username }} --password {{ password }} --auto-attach
-      when:  ansible_distribution == "RedHat"
-
 - name: Forwarding IPv4 and letting iptables see bridged traffic
   block:
     - name: Loading Modules Boot Time
