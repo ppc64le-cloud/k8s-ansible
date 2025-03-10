@@ -1,0 +1,7 @@
+{
+    "auths": {
+      "icr.io": {
+        "auth": "<auth-token"
+      }
+    }
+}
