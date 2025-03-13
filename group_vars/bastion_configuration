@@ -1,0 +1,6 @@
+---
+##### Private Network configuration #####
+vpc_cidr: 10.0.0.0/8
+
+bastion_private_gateway: ""
+bastion_private_ip: ""

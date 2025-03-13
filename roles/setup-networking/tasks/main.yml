@@ -1,0 +1,56 @@
+- name: Install pre-requisite packages in bastion
+  package:
+    name: iptables
+    state: present
+  when: node_type == "bastion" and ansible_pkg_mgr in ['yum', 'dnf']
+
+- name: Configure networks on bastion
+  shell: |
+    dev_uuid=$(grep $(ip a | grep {{ bastion_private_ip }} | awk '{ print $NF }') <(nmcli -g device,uuid con) | cut -d':' -f2)
+    nmcli connection modify $dev_uuid +ipv4.routes "{{ vpc_cidr }} {{ bastion_private_gateway }}"
+    nmcli connection modify $dev_uuid -ipv4.gateway ""
+    nmcli connection up $dev_uuid
+  when: node_type == "bastion"
+
+- name: Copy the ip-forwarder.sh script
+  copy:
+    src: ip-forwarder.sh
+    dest: /usr/local/bin/ip-forwarder.sh
+    mode: '0744'
+  when: node_type == "bastion"
+
+- name: Get public_interface of the bastion
+  shell: ip route get 8.8.8.8 | sed -n 's/.*dev \([^ ]*\).*/\1/p'
+  register: public_interface_output
+  when: node_type == "bastion"
+
+- name: Get private_interface of the bastion
+  shell: ip -o addr show | awk -v ip={{ bastion_private_ip }} '$4 ~ ip {print $2}'
+  register: private_interface_output
+  when: node_type == "bastion"
+
+- name: Template a systemd service for forwarding traffic through eth interfaces.
+  template:
+    src: ip-forward.service.j2
+    dest: /usr/lib/systemd/system/ip-forward.service
+    mode: '0644'
+  when: node_type == "bastion"
+
+- name: Enable and Restart ip-forward.service.j2
+  systemd:
+    name: ip-forward
+    state: started
+    enabled: yes
+  when: node_type == "bastion"
+
+- name: Identify interfaces on the masters and workers associated with private IP
+  shell: |
+    dev_uuid=$(grep $(ip a | grep {{ ansible_default_ipv4.address }} | awk '{ print $NF }') <(nmcli -g device,uuid con) | cut -d':' -f2)
+    nmcli conn modify $dev_uuid ipv4.gateway {{ bastion_private_ip }}
+    nmcli conn modify $dev_uuid +ipv4.routes "{{ vpc_cidr }} {{ bastion_private_gateway }}"
+    nmcli conn up $dev_uuid
+  when: node_type == "master" or node_type == "worker"
+
+- name: Ping a Public DNS to confirm internet connectivity
+  shell: ping -c 2 -w 2 8.8.8.8
+  when: node_type == "master" or node_type == "worker"
