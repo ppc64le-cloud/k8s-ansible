@@ -7,7 +7,7 @@
 - name: Configure networks on bastion
   shell: |
     dev_uuid=$(grep $(ip a | grep {{ bastion_private_ip }} | awk '{ print $NF }') <(nmcli -g device,uuid con) | cut -d':' -f2)
-    nmcli connection modify $dev_uuid +ipv4.routes "{{ private_cidr }} {{ bastion_private_gateway }}"
+    nmcli connection modify $dev_uuid +ipv4.routes "{{ vpc_cidr }} {{ bastion_private_gateway }}"
     nmcli connection modify $dev_uuid -ipv4.gateway ""
     nmcli connection up $dev_uuid
   when: node_type == "bastion"
@@ -15,25 +15,40 @@
 - name: Copy the ip-forwarder.sh script
   copy:
     src: ip-forwarder.sh
-    dest: /root
+    dest: /usr/local/bin/ip-forwarder.sh
     mode: '0744'
   when: node_type == "bastion"
 
-- name: Setup forwarding rules through ip-forwarder.sh on bastion
-  shell: |
-    public_interface=$(ip route get 8.8.8.8 | sed -n 's/.*dev \([^ ]*\).*/\1/p')
-    private_interface=$(grep -Rl "{{ bastion_private_ip }}" /etc/sysconfig/network-scripts/ | xargs sed -n 's/.*DEVICE=\([^ ]*\).*/\1/p')
-    /root/ip-forwarder.sh "$private_interface" "$public_interface"
-    (crontab -l; echo "@reboot /root/ip-forwarder.sh \"$private_interface\" \"$public_interface\"") | crontab -
+- name: Get public_interface of the bastion
+  shell: ip route get 8.8.8.8 | sed -n 's/.*dev \([^ ]*\).*/\1/p'
+  register: public_interface_output
+  when: node_type == "bastion"
+
+- name: Get private_interface of the bastion
+  shell: ip -o addr show | awk -v ip={{ bastion_private_ip }} '$4 ~ ip {print $2}'
+  register: private_interface_output
+  when: node_type == "bastion"
+
+- name: Template a systemd service for forwarding traffic through eth interfaces.
+  template:
+    src: ip-forward.service.j2
+    dest: /usr/lib/systemd/system/ip-forward.service
+    mode: '0644'
+  when: node_type == "bastion"
+
+- name: Enable and Restart ip-forward.service.j2
+  systemd:
+    name: ip-forward
+    state: started
+    enabled: yes
   when: node_type == "bastion"
 
 - name: Identify interfaces on the masters and workers associated with private IP
   shell: |
     dev_uuid=$(grep $(ip a | grep {{ ansible_default_ipv4.address }} | awk '{ print $NF }') <(nmcli -g device,uuid con) | cut -d':' -f2)
-    nmcli conn modify $dev_uuid ipv4.gateway "{{ bastion_private_ip }}"
-    nmcli conn modify $dev_uuid +ipv4.routes "{{ private_cidr }} {{ bastion_private_gateway }}"
+    nmcli conn modify $dev_uuid ipv4.gateway {{ bastion_private_ip }}
+    nmcli conn modify $dev_uuid +ipv4.routes "{{ vpc_cidr }} {{ bastion_private_gateway }}"
     nmcli conn up $dev_uuid
-
   when: node_type == "master" or node_type == "worker"
 
 - name: Ping a Public DNS to confirm internet connectivity

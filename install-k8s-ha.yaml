@@ -18,13 +18,4 @@
 - name: Install networking - calico
   hosts: masters
   roles:
-    - role: install-calico
-      when: cni_provider == "calico"
-
-- name: Install networking - flannel
-  hosts:
-    - masters
-    - workers
-  roles:
-    - role: install-flannel
-      when: cni_provider == "flannel"
+    - install-calico
