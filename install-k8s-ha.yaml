@@ -1,0 +1,21 @@
+- name: Setup Networking on the control-plane, compute and bastion nodes.
+  hosts:
+    - masters
+    - workers
+    - bastion
+  roles:
+    - setup-networking
+
+- name: Install Runtime and Kubernetes
+  hosts:
+    - masters
+    - workers
+  roles:
+    - runtime
+    - download-k8s
+    - install-k8s
+
+- name: Install networking - calico
+  hosts: masters
+  roles:
+    - install-calico
