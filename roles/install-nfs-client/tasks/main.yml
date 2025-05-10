@@ -1,0 +1,22 @@
+- name: Install nfs client packages
+  yum:
+    name: 
+      - nfs-utils
+      - nfs4-acl-tools
+
+- name: Copy nfs client resource files to /tmp
+  copy:
+    src: "{{ item }}"
+    dest: /tmp/
+  with_fileglob:
+    - "*"
+
+- name: Template a nfs client script to /tmp/deploy-nfs-client.sh
+  template:
+    src: deploy-nfs-client.sh.j2
+    dest: /tmp/deploy-nfs-client.sh
+    mode: '0644'
+
+- name: Run nfs client deployment script
+  shell: bash /tmp/deploy-nfs-client.sh
+

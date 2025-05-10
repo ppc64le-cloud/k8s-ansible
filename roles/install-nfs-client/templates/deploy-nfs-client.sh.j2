@@ -1,0 +1,50 @@
+#! /bin/bash
+
+set -e
+
+if ! command -v wget &> /dev/null
+then
+  yum install wget -y
+fi
+
+if ! command -v yq &> /dev/null
+then
+  wget https://github.com/mikefarah/yq/releases/download/v4.40.5/yq_linux_ppc64le
+  mv yq_linux_ppc64le /usr/bin/yq 
+  chmod +x /usr/bin/yq 
+fi
+ 
+export SVRADDR={{ bastion_ip }}
+export LOCALDIR={{ nfs_directory }}
+
+DEPLYAML=/tmp/deployment.yaml
+
+yq eval '
+(.spec.template.spec.containers[0].image = "k8s.gcr.io/sig-storage/nfs-subdir-external-provisioner:v4.0.2") |
+(.spec.template.spec.containers[0].env[] | select(.name=="NFS_SERVER").value) = env(SVRADDR) |
+(.spec.template.spec.containers[0].env[] |select(.name=="NFS_PATH").value) = env(LOCALDIR) |
+(.spec.template.spec.volumes[0].nfs.server) = env(SVRADDR) |
+(.spec.template.spec.volumes[0].nfs.path) = env(LOCALDIR)
+' -i $DEPLYAML
+
+kubectl create -f /tmp/rbac.yaml
+kubectl create -f /tmp/class.yaml
+kubectl create -f $DEPLYAML
+
+for i in {1..20}; do
+  echo "Waiting for pods to start...."
+  sleep 6s
+  if [[ $(kubectl get pods -l app=nfs-client-provisioner -o 'jsonpath={..status.conditions[?(@.type=="Ready")].status}') == "True" ]]
+  then
+    echo "Pods started."
+    break
+  else
+    if [[ $i == 20 ]]
+	  then
+	    echo "Pods didn't start after 120s."
+      exit 1
+	  fi
+  fi
+done
+
+kubectl patch storageclass managed-nfs-storage -p '{"metadata": {"annotations":{"storageclass.kubernetes.io/is-default-class":"true"}}}'

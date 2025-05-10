@@ -1,0 +1,25 @@
+- name: Install Runtime and Kubernetes
+  hosts:
+    - masters
+    - workers
+  roles:
+    - runtime
+    - download-k8s
+    - install-k8s
+
+- name: Install networking - calico
+  hosts: masters
+  roles:
+    - install-calico
+
+- name: Install nfs client
+  hosts: masters
+  roles:
+    - install-nfs-client
+
+- name: Post install configurations
+  hosts:
+    - masters
+    - workers
+  roles:
+    - post-install
